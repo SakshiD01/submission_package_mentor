@@ -351,6 +351,8 @@ class InferenceEngine:
         )
         self.conformal = _load_json(outputs_dir / "conformal_results.json")
         self.scaler = joblib.load(self.trained_dir / "scaler.joblib")
+        # Keep estimators in memory: avoids repeated disk deserialization per request.
+        self._model_cache: Dict[Tuple[str, str], Any] = {}
         X, _ = load_xy()
         self.base = X[TRAINING_COLUMN_ORDER].mean(axis=0).astype(float).to_dict()
         self.scenario_mapping = _parse_xlsx_scenario_mapping(
@@ -387,6 +389,16 @@ class InferenceEngine:
             input_unit,
         )
         self.feature_defaults_by_scenario: Dict[str, Dict[str, Dict[str, float]]] = {}
+
+    def _get_estimator(self, target: str, model: str) -> Any:
+        key = (target, model)
+        est = self._model_cache.get(key)
+        if est is not None:
+            return est
+        tdir = self.trained_dir / _safe_filename(target)
+        est = joblib.load(tdir / f"{_safe_filename(model)}.joblib")
+        self._model_cache[key] = est
+        return est
 
     def compute_feature_defaults(
         self, level_inputs_map: Dict[str, Dict[str, Dict[str, float]]]
@@ -508,8 +520,7 @@ class InferenceEngine:
         return x
 
     def _predict_target(self, target: str, model: str, x_row: np.ndarray, x_scaled: np.ndarray) -> float:
-        tdir = self.trained_dir / _safe_filename(target)
-        est = joblib.load(tdir / f"{_safe_filename(model)}.joblib")
+        est = self._get_estimator(target, model)
         if model in NEEDS_SCALING:
             return float(est.predict(x_scaled)[0])
         return float(est.predict(x_row)[0])

@@ -1210,7 +1210,7 @@ async function runPrediction() {
       light: true,
       include_trend: false,
       include_target_corr: false,
-      mc_samples: 128,
+      mc_samples: 64,
     };
     const stackRes = await fetch(`${base}/api/predict`, {
       method: "POST",
