@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Decision Intelligence — NOLHC</title>
+<style>
+:root {
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f5f4f0;
+  --color-background-tertiary: #ede9e3;
+  --color-background-info: #e6f1fb;
+  --color-background-success: #eaf3de;
+  --color-background-warning: #faeeda;
+  --color-background-danger: #fcebeb;
+  --color-text-primary: #1a1a18;
+  --color-text-secondary: #5f5e5a;
+  --color-text-tertiary: #888780;
+  --color-text-info: #0c447c;
+  --color-text-success: #27500a;
+  --color-text-warning: #633806;
+  --color-text-danger: #791f1f;
+  --color-border-tertiary: rgba(0,0,0,0.12);
+  --color-border-secondary: rgba(0,0,0,0.22);
+  --color-border-primary: rgba(0,0,0,0.32);
+  --color-border-info: rgba(24,95,165,0.4);
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --font-sans: system-ui, -apple-system, sans-serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:var(--color-background-tertiary);color:var(--color-text-primary);padding:1.5rem 1rem;min-height:100vh}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.root{max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:1.25rem}
+.top-bar{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
+.top-bar-left{display:flex;flex-direction:column;gap:2px}
+.platform-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.06em}
+.status-row{display:flex;gap:.375rem;flex-wrap:wrap;margin-top:4px}
+.status-pill{font-size:10px;padding:2px 7px;border-radius:12px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.status-pill.ok{background:#E1F5EE;color:#085041;border-color:#5DCAA5}
+.status-pill.bad{background:#FCEBEB;color:#791F1F;border-color:#E8A1A1}
+.scenario-selector{display:flex;gap:.375rem;flex-wrap:wrap}
+.scen-btn{font-size:12px;padding:4px 11px;border-radius:20px;border:0.5px solid var(--color-border-secondary);cursor:pointer;background:var(--color-background-secondary);color:var(--color-text-secondary);transition:all .15s}
+.scen-btn.active{background:#E6F1FB;color:#0C447C;border-color:#85B7EB}
+.persona-selector{display:flex;gap:.375rem;flex-wrap:wrap}
+.persona-btn{font-size:12px;padding:4px 11px;border-radius:20px;border:0.5px solid var(--color-border-secondary);cursor:pointer;background:var(--color-background-secondary);color:var(--color-text-secondary);transition:all .15s}
+.persona-btn.active{background:#E1F5EE;color:#085041;border-color:#5DCAA5}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.625rem;max-height:520px;overflow-y:auto;padding-right:2px}
+.panel-sub{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.heatmap-controls{display:flex;flex-wrap:wrap;gap:6px;max-height:120px;overflow-y:auto;padding:4px 0;margin-bottom:8px;font-size:10px}
+.heatmap-controls label{display:inline-flex;align-items:center;gap:4px;cursor:pointer;color:var(--color-text-secondary)}
+.heatmap-controls input{accent-color:#378ADD}
+.kpi-card{background:var(--color-background-secondary);border-radius:8px;padding:.75rem .875rem;cursor:pointer;border:1.5px solid transparent;transition:border-color .15s}
+.kpi-card.selected{border-color:#378ADD}
+.kpi-label{font-size:11px;color:var(--color-text-secondary);letter-spacing:.01em;line-height:1.35;margin-bottom:4px;white-space:normal}
+.kpi-value{font-size:20px;font-weight:500;color:var(--color-text-primary);line-height:1.1}
+.kpi-delta{font-size:11px;margin-top:3px}
+.kpi-interval{font-size:10px;color:var(--color-text-secondary);margin-top:1px}
+.policy-note{font-size:11px;color:var(--color-text-secondary);background:var(--color-background-info);border:1px solid var(--color-border-info);border-radius:8px;padding:6px 8px;margin:8px 0 10px}
+.nolhc-input-card.locked{opacity:.82}
+.nolhc-input-card.locked input[type=range]{opacity:.55;cursor:not-allowed}
+.lock-note{font-size:10px;color:#8A5A06;margin-top:4px}
+.delta-pos{color:#3B6D11}
+.delta-neg{color:#A32D2D}
+.delta-neu{color:var(--color-text-secondary)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.panel{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;overflow:hidden}
+.panel-head{padding:.625rem 1rem;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em}
+.panel-tag{font-size:10px;padding:2px 7px;border-radius:4px}
+.tag-xai{background:#EEEDFE;color:#3C3489}
+.tag-sim{background:#FAEEDA;color:#633806}
+.tag-ml{background:#E6F1FB;color:#0C447C}
+.tag-llm{background:#E1F5EE;color:#085041}
+.panel-body{padding:.875rem 1rem}
+.chart-wrap{position:relative;width:100%}
+.feat-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.feat-name{font-size:12px;color:var(--color-text-primary);width:110px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feat-bar-bg{flex:1;height:8px;background:var(--color-background-secondary);border-radius:4px;overflow:hidden}
+.feat-bar-fill{height:100%;border-radius:4px;transition:width .4s}
+.feat-val{font-size:11px;color:var(--color-text-secondary);width:38px;text-align:right;flex-shrink:0}
+.sim-sliders{display:flex;flex-direction:column;gap:10px}
+.sim-row{display:flex;flex-direction:column;gap:3px}
+.sim-row-top{display:flex;justify-content:space-between;align-items:center}
+.sim-row-label{font-size:12px;color:var(--color-text-secondary)}
+.sim-row-val{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.sim-row input[type=range]{width:100%;margin:0;accent-color:#378ADD}
+.full-panel{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;overflow:hidden}
+.actions-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.625rem;padding:.875rem 1rem}
+.action-card{background:var(--color-background-secondary);border-radius:8px;padding:.75rem;border-left:3px solid transparent}
+.action-card.high{border-left-color:#E24B4A}
+.action-card.med{border-left-color:#EF9F27}
+.action-card.low{border-left-color:#1D9E75}
+.action-title{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.action-body{font-size:11px;color:var(--color-text-secondary);line-height:1.5}
+.action-impact{font-size:10px;margin-top:5px;font-weight:500}
+.impact-high{color:#A32D2D}
+.impact-med{color:#854F0B}
+.impact-low{color:#3B6D11}
+.llm-section{padding:.875rem 1rem}
+.chat-feed{display:flex;flex-direction:column;gap:.625rem;max-height:220px;overflow-y:auto;margin-bottom:.75rem}
+.msg{display:flex;gap:8px;align-items:flex-start}
+.msg.user{flex-direction:row-reverse}
+.av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;flex-shrink:0}
+.av.llm{background:#E1F5EE;color:#085041}
+.av.user{background:#E6F1FB;color:#0C447C}
+.bubble{padding:.5rem .75rem;border-radius:10px;font-size:12px;line-height:1.55;max-width:88%}
+.msg.llm .bubble{background:var(--color-background-secondary);color:var(--color-text-primary);border-radius:3px 10px 10px 10px}
+.msg.user .bubble{background:#E6F1FB;color:#0C447C;border-radius:10px 3px 10px 10px}
+.quick-btns{display:flex;gap:.375rem;flex-wrap:wrap;margin-bottom:.625rem}
+.q-btn{font-size:11px;padding:4px 9px;border:0.5px solid var(--color-border-secondary);border-radius:6px;cursor:pointer;background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.q-btn:hover{background:var(--color-background-tertiary)}
+.chat-input-row{display:flex;gap:.5rem}
+.chat-input-row input{flex:1;font-size:12px;padding:.4rem .65rem;border:0.5px solid var(--color-border-secondary);border-radius:8px;background:var(--color-background-primary);color:var(--color-text-primary)}
+.chat-input-row button{padding:.4rem .75rem;font-size:12px;border:0.5px solid var(--color-border-secondary);border-radius:8px;cursor:pointer;background:var(--color-background-secondary);color:var(--color-text-primary)}
+.chat-input-row button:hover{background:var(--color-background-tertiary)}
+.dots span{width:5px;height:5px;border-radius:50%;background:var(--color-text-secondary);display:inline-block;animation:blink 1.2s infinite}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+
+.scen-library{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.625rem;padding:.875rem 1rem}
+.scen-card{border-radius:8px;padding:.75rem;cursor:pointer;border:1.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);transition:all .18s;position:relative}
+.scen-card:hover{border-color:#378ADD;background:#f0f6fd}
+.scen-card.active-card{border-color:#185FA5;background:#E6F1FB}
+.scen-card-name{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.scen-card-tag{font-size:10px;padding:1px 6px;border-radius:3px;display:inline-block;margin-bottom:6px}
+.scen-card-desc{font-size:11px;color:var(--color-text-secondary);line-height:1.5;margin-bottom:6px}
+.scen-card-params{font-size:10px;color:var(--color-text-tertiary);line-height:1.6;border-top:0.5px solid var(--color-border-tertiary);padding-top:6px;margin-top:2px}
+.scen-card-params span{display:block}
+.scen-use{font-size:10px;font-weight:500;color:#185FA5;margin-top:5px}
+
+.whatif-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;padding:.875rem 1rem}
+.whatif-left{display:flex;flex-direction:column;gap:.75rem}
+.whatif-right{display:flex;flex-direction:column;gap:.75rem}
+.wi-row{display:flex;flex-direction:column;gap:3px}
+.wi-top{display:flex;justify-content:space-between;align-items:center}
+.wi-label{font-size:12px;color:var(--color-text-secondary)}
+.wi-val{font-size:12px;font-weight:500;color:var(--color-text-primary);min-width:48px;text-align:right}
+.wi-row input[type=range]{width:100%;margin:0;accent-color:#378ADD}
+.wi-output{background:var(--color-background-secondary);border-radius:8px;padding:.875rem 1rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.625rem;max-height:280px;overflow-y:auto}
+.wi-kpi{display:flex;flex-direction:column;gap:2px}
+.wi-kpi-label{font-size:10px;color:var(--color-text-secondary);letter-spacing:.01em;line-height:1.3}
+.wi-kpi-val{font-size:16px;font-weight:500;color:var(--color-text-primary)}
+.wi-kpi-delta{font-size:10px}
+.wi-narrative{background:var(--color-background-secondary);border-radius:8px;padding:.75rem 1rem;font-size:12px;color:var(--color-text-secondary);line-height:1.6;border-left:3px solid #378ADD}
+.wi-apply-btn{display:inline-block;font-size:12px;padding:5px 14px;border-radius:6px;border:0.5px solid #85B7EB;background:#E6F1FB;color:#0C447C;cursor:pointer;margin-top:.5rem}
+.wi-apply-btn:hover{background:#d0e8f8}
+.wi-reset-btn{display:inline-block;font-size:12px;padding:5px 14px;border-radius:6px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);cursor:pointer;margin-top:.5rem;margin-left:.375rem}
+.section-divider{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.06em;padding:.25rem 0}
+
+@media(max-width:600px){
+  .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .two-col{grid-template-columns:1fr}
+  .actions-grid{grid-template-columns:1fr}
+  .scen-library{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .whatif-grid{grid-template-columns:1fr}
+  .wi-output{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dyn-param-grid{grid-template-columns:1fr}
+}
+
+/* —— Decision Intelligence (aligned with main app slate + teal) —— */
+body.di-page{
+  --color-background-primary:#1e293b;
+  --color-background-secondary:#0f172a;
+  --color-background-tertiary:#020617;
+  --color-text-primary:#f1f5f9;
+  --color-text-secondary:#94a3b8;
+  --color-text-tertiary:#64748b;
+  --color-border-tertiary:rgba(51,65,85,0.55);
+  --color-border-secondary:rgba(71,85,105,0.65);
+  background:
+    linear-gradient(155deg, rgba(13,148,136,0.09) 0%, transparent 42%),
+    radial-gradient(ellipse 90% 45% at 50% -15%, rgba(45,212,191,0.11), transparent),
+    repeating-linear-gradient(0deg, transparent, transparent 24px, rgba(51,65,85,0.12) 24px, rgba(51,65,85,0.12) 25px),
+    var(--color-background-tertiary);
+  color:var(--color-text-primary);
+}
+body.di-page .full-panel, body.di-page .panel{background:var(--color-background-primary);border-color:var(--color-border-tertiary)}
+body.di-page .kpi-card, body.di-page .wi-output, body.di-page .wi-narrative, body.di-page .action-card{background:var(--color-background-secondary)}
+body.di-page .scen-card{background:var(--color-background-secondary)}
+body.di-page .scen-btn, body.di-page .persona-btn{background:#1e293b;color:#cbd5e1;border-color:#475569}
+body.di-page .scen-btn.active{background:rgba(13,148,136,0.25);color:#5eead4;border-color:#2dd4bf}
+body.di-page .status-pill{background:#1e293b;color:#94a3b8;border-color:#475569}
+body.di-page .status-pill.ok{background:rgba(13,148,136,0.2);color:#5eead4;border-color:#0d9488}
+body.di-page .status-pill.bad{background:#450a0a;color:#fecaca;border-color:#991b1b}
+.di-nav{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px;padding:10px 12px;border-radius:var(--border-radius-lg);background:linear-gradient(90deg, rgba(13,148,136,0.15), rgba(30,41,59,0.9));border:0.5px solid rgba(45,212,191,0.25)}
+.di-nav-back{font-size:12px;font-weight:600;color:#5eead4;text-decoration:none;padding:6px 12px;border-radius:8px;border:1px solid rgba(45,212,191,0.35);background:rgba(13,148,136,0.12);transition:background .15s,border-color .15s}
+.di-nav-back:hover{background:rgba(13,148,136,0.22);border-color:rgba(45,212,191,0.55)}
+.di-nav-title{font-size:13px;font-weight:600;color:#e2e8f0;letter-spacing:.02em}
+.dim-input-intro{font-size:11px;color:var(--color-text-secondary);line-height:1.5;margin-bottom:10px}
+.dyn-param-list{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow-y:auto;padding-right:4px}
+.dyn-param-card{border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:10px 11px;background:var(--color-background-secondary)}
+.nolhc-input-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:10px;max-height:min(62vh,560px);overflow-y:auto;padding:6px 2px 10px 2px}
+.nolhc-input-card{border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:9px 10px;background:var(--color-background-secondary)}
+.nolhc-code{font-size:9px;color:var(--color-text-tertiary);font-family:ui-monospace,monospace;margin-top:2px}
+.dyn-param-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
+.dyn-param-label{font-size:12px;font-weight:500;color:var(--color-text-primary);line-height:1.35}
+.dyn-param-desc{font-size:10px;color:var(--color-text-tertiary);line-height:1.45;margin-bottom:8px}
+.dyn-param-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:10px}
+.dyn-k{display:block;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.03em;margin-bottom:2px}
+.dyn-v{font-size:12px;font-weight:500;color:#cbd5e1}
+.tag-bucket-major{background:rgba(220,38,38,0.2);color:#fca5a5;border:0.5px solid rgba(248,113,113,0.4)}
+.tag-bucket-change{background:rgba(234,179,8,0.15);color:#fcd34d;border:0.5px solid rgba(250,204,21,0.35)}
+.tag-bucket-slight{background:rgba(59,130,246,0.15);color:#93c5fd;border:0.5px solid rgba(96,165,250,0.35)}
+.tag-bucket-neutral{background:#334155;color:#cbd5e1;border:0.5px solid #475569}
+</style>
+</head>
+<body class="di-page">
+
+<div class="root">
+<h2 class="sr-only">Decision Intelligence — scenario outputs, XAI, and LLM layer</h2>
+
+<div class="di-nav">
+  <a class="di-nav-back" href="index.html">← Supply Chain Simulator</a>
+  <span class="di-nav-title">Decision Intelligence</span>
+</div>
+
+<div class="top-bar">
+  <div class="top-bar-left">
+    <span class="platform-label">Sim · ML · XAI · LLM — scenario intelligence</span>
+    <div class="status-row">
+      <span class="status-pill" id="backend-status">Backend: checking</span>
+      <span class="status-pill" id="source-status">Data source: unknown</span>
+      <span class="status-pill" id="infer-status">Inference: waiting</span>
+    </div>
+    <div class="scenario-selector" id="scen-sel" style="margin-top:6px">
+      <button class="scen-btn active" onclick="setScenarioFamily('routes',this)">Family 1: Direct route scenario</button>
+      <button class="scen-btn" onclick="setScenarioFamily('border',this)">Family 2: Non-tariff scenario</button>
+    </div>
+  </div>
+  <div>
+    <div class="platform-label" style="margin-bottom:6px">Stakeholder view</div>
+    <div class="persona-selector" id="pers-sel">
+      <button class="persona-btn active" onclick="setPersona('exec',this)">Executive</button>
+      <button class="persona-btn" onclick="setPersona('risk',this)">Risk officer</button>
+      <button class="persona-btn" onclick="setPersona('ops',this)">Operations</button>
+      <button class="persona-btn" onclick="setPersona('analyst',this)">Analyst</button>
+    </div>
+  </div>
+</div>
+
+<div class="full-panel">
+  <div class="panel-head">
+    <span class="panel-title">Predefined scenario library</span>
+    <span class="panel-tag tag-sim">6 scenarios</span>
+  </div>
+  <div class="scen-library" id="scen-library"></div>
+</div>
+
+<div class="full-panel">
+  <div class="panel-head">
+    <span class="panel-title">Dynamic scenario inputs — Excel workbook + model</span>
+    <span class="panel-tag tag-sim">Simulation</span>
+  </div>
+  <div style="padding:.875rem 1rem .25rem">
+    <div class="wi-narrative" id="wi-narrative">Select a predefined scenario and tune sliders. Outputs are grounded in pipeline artefacts (test/conformal/CV + SHAP importance).</div>
+  </div>
+  <div class="whatif-grid">
+    <div class="whatif-left" id="dynamic-inputs"></div>
+    <div class="whatif-right">
+      <div class="section-divider">Scenario level</div>
+      <div class="scenario-selector" id="level-sel">
+        <button class="scen-btn active" onclick="setScenarioLevel('baseline',this)">As-Is (Pre-Brexit)</button>
+        <button class="scen-btn" onclick="setScenarioLevel('moderate',this)">Scenario 1</button>
+        <button class="scen-btn" onclick="setScenarioLevel('significant',this)">Scenario 2</button>
+      </div>
+      <div class="wi-narrative" id="scenario-desc" style="margin-top:.75rem"></div>
+      <div class="section-divider" style="margin-top:.75rem">Actions</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.5" id="scenario-actions"></div>
+      <div style="margin-top:.75rem">
+        <button class="wi-apply-btn" onclick="wiApply()">Apply as active scenario ↗</button>
+        <button class="wi-reset-btn" onclick="wiReset()">Reset</button>
+      </div>
+    </div>
+  </div>
+  <div style="padding:.25rem 1rem .875rem">
+    <div class="section-divider" style="margin-bottom:.5rem">20 target outputs (model predictions)</div>
+    <div class="wi-output" id="wi-output"></div>
+  </div>
+</div>
+
+<div class="kpi-grid" id="kpi-grid"></div>
+
+<div class="two-col">
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-title">XAI explanation layer — feature attribution</span>
+      <span class="panel-tag tag-xai">SHAP</span>
+    </div>
+    <div class="panel-body">
+      <div class="panel-sub">Explains model drivers (mean |SHAP|) for the selected output target.</div>
+      <div id="shap-bars"></div>
+      <div style="margin-top:10px;font-size:11px;color:var(--color-text-secondary)" id="shap-caption"></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-title">Simulation — parameter sweep</span>
+      <span class="panel-tag tag-sim">Monte Carlo</span>
+    </div>
+    <div class="panel-body">
+      <div class="sim-sliders" id="sim-sliders"></div>
+      <div style="margin-top:12px">
+        <div class="chart-wrap" style="height:100px">
+          <canvas id="sim-chart" role="img" aria-label="Simulated KPI distribution histogram"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-title">ML forecast — 12 month trend</span>
+      <span class="panel-tag tag-ml">Conformal PI</span>
+    </div>
+    <div class="panel-body">
+      <div class="chart-wrap" style="height:160px">
+        <canvas id="forecast-chart" role="img" aria-label="12-month ML forecast with conformal prediction intervals"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-title">Target correlation heatmap (Monte Carlo)</span>
+      <span class="panel-tag tag-ml">ML</span>
+    </div>
+    <div class="panel-body">
+      <div class="panel-sub">Pairwise Pearson correlation of simulated outputs (input jitter). Toggle which of the 20 targets to include.</div>
+      <div class="heatmap-controls" id="heatmap-target-toggles"></div>
+      <div id="heatmap"></div>
+    </div>
+  </div>
+</div>
+
+<div class="full-panel">
+  <div class="panel-head">
+    <span class="panel-title">XAI + LLM — recommended actions</span>
+    <span class="panel-tag tag-llm">Insight engine</span>
+  </div>
+  <div class="actions-grid" id="actions-grid"></div>
+</div>
+
+<div class="full-panel">
+  <div class="panel-head">
+    <span class="panel-title">LLM attribution layer — scenario explanation &amp; Q&amp;A</span>
+    <span class="panel-tag tag-llm">Multi-persona</span>
+  </div>
+  <div class="llm-section">
+    <div class="panel-sub" style="padding:0 0 8px 0">Natural-language layer grounded on live inference, intervals, and SHAP drivers (no external LLM call in this template).</div>
+    <div class="quick-btns" id="quick-btns"></div>
+    <div class="chat-feed" id="chat-feed"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chat-inp" placeholder="Ask about scenario drivers, risks, or actions…" onkeydown="if(event.key==='Enter')userSend()"/>
+      <button onclick="userSend()">Ask ↗</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const PERSONAS={
+  exec:{label:'EX',name:'Executive'},
+  risk:{label:'RO',name:'Risk officer'},
+  ops:{label:'OP',name:'Operations'},
+  analyst:{label:'AN',name:'Analyst'}
+};
+
+const QUICK_Q={
+  exec:['What is the key risk?','What should I decide now?','What changes across levels?'],
+  risk:['How wide is uncertainty?','Coverage caveats?','What is not guaranteed?'],
+  ops:['Which levers matter most?','Where is dwell pressure?','What to do in 72 hours?'],
+  analyst:['Top SHAP features?','CV vs test confidence?','Assumptions and caveats?']
+};
+
+const OUTPUT_COLUMN_ORDER=[
+  'TT_OB_Agri','WT_OB_A_GB-Dub','WT_OB_A_GB-Ross','TT_IB_Agri','WT_IB_A_Dub','WT_IB_A_Ross',
+  'WT_IB_NA_Dub','WT_OB_NA_GB-Dub','WT_IB_NA_Ross','WT_OB_NA_GB-Ross',
+  'TT_OB_LB','WT_OB_LB','TT_IB_LB','WT_IB_LB','TT_OB_DR','TT_IB_DR',
+  'Uti_Cus_D','Uti_DAFM_D','Uti_Cus_R','Uti_DAFM_R'
+];
+
+const KPI_LABEL_OVERRIDES={
+  'TT_OB_Agri':'Agri Export Transport Time - Outbound (IRE→GB)',
+  'WT_OB_A_GB-Dub':'Agri Export Waiting Time - Outbound, Dublin (GB-side)',
+  'WT_OB_A_GB-Ross':'Agri Export Waiting Time - Outbound, Rosslare (GB-side)',
+  'TT_IB_Agri':'Agri Import Transport Time - Inbound (GB→IRE)',
+  'WT_IB_A_Dub':'Agri Import Waiting Time - Inbound, Dublin',
+  'WT_IB_A_Ross':'Agri Import Waiting Time - Inbound, Rosslare',
+  'WT_IB_NA_Dub':'Non-Agri Import Waiting Time - Inbound, Dublin',
+  'WT_OB_NA_GB-Dub':'Non-Agri Export Waiting Time - Outbound, Dublin (GB-side)',
+  'WT_IB_NA_Ross':'Non-Agri Import Waiting Time - Inbound, Rosslare',
+  'WT_OB_NA_GB-Ross':'Non-Agri Export Waiting Time - Outbound, Rosslare (GB-side)',
+  'TT_OB_LB':'Landbridge Transport Time - Outbound Export (IRE→EU via GB)',
+  'WT_OB_LB':'Landbridge Waiting Time - Outbound Export',
+  'TT_IB_LB':'Landbridge Transport Time - Inbound Import (EU→IRE via GB)',
+  'WT_IB_LB':'Landbridge Waiting Time - Inbound Import',
+  'TT_OB_DR':'Direct Route Transport Time - Outbound Export (IRE→EU)',
+  'TT_IB_DR':'Direct Route Transport Time - Inbound Import (EU→IRE)',
+  'Uti_Cus_D':'Customs Utilisation - Dublin',
+  'Uti_DAFM_D':'DAFM Utilisation - Dublin',
+  'Uti_Cus_R':'Customs Utilisation - Rosslare',
+  'Uti_DAFM_R':'DAFM Utilisation - Rosslare'
+};
+
+function buildKpiTargets(td){
+  return OUTPUT_COLUMN_ORDER.map(t=>{
+    const full=(td&&td[t])||t;
+    const label=full.includes(',')?full.split(',')[0].trim():full;
+    return {
+      key:t.toLowerCase().replace(/[^a-z0-9]+/g,'_'),
+      label:KPI_LABEL_OVERRIDES[t]||label,
+      target:t,
+      unit:t.startsWith('Uti_')?'':'h',
+      scalePct:t.startsWith('Uti_'),
+      positiveLower:!t.startsWith('Uti_')
+    };
+  });
+}
+
+let KPI_TARGETS=buildKpiTargets({});
+
+const SCENARIO_FAMILIES={
+  routes:{
+    title:'Direct route scenario',
+    levels:{
+  baseline:{
+        name:'Pre-Brexit baseline (As-Is)',
+        description:'Freight moves seamlessly through the Ireland–UK–EU landbridge corridor, with no tariff or non-tariff barriers and minimal border-related delays (baseline sliders; AS-IS column when the dynamic-parameters workbook is present).',
+        inputs:{directShare:0,landbridgeShare:100,ntbIrish:0,ntbUK:0}
+      },
+      moderate:{
+        name:'Moderate shift to direct route',
+        description:'Moderate diversion toward direct Ireland–EU maritime routes; Scenario 1 column in the workbook drives mapped input parameters alongside sliders.',
+        inputs:{directShare:40,landbridgeShare:60,ntbIrish:40,ntbUK:40}
+      },
+      significant:{
+        name:'Significant shift to direct route',
+        description:'Strong shift to direct routes; Scenario 2 column drives mapped inputs where defined.',
+        inputs:{directShare:85,landbridgeShare:15,ntbIrish:80,ntbUK:80}
+      }
+    }
+  },
+  border:{
+    title:'Non-tariff scenario',
+    levels:{
+      baseline:{
+        name:'Pre-Brexit baseline (As-Is)',
+        description:'Freight moves seamlessly through the Ireland–UK–EU landbridge corridor, with no tariff or non-tariff barriers and minimal border-related delays.',
+        inputs:{inspectionEnhance:0,landbridgeShare:100,inspectionCoverage:0}
+      },
+      moderate:{
+        name:'Moderate enhancement in border operations',
+        description:'Approximately 40% of border inspection activities at Irish, UK, and EU ports are improved in efficiency; 100% of freight continues on the landbridge (Scenario 1 column for mapped inputs).',
+        inputs:{inspectionEnhance:40,landbridgeShare:100,inspectionCoverage:40}
+      },
+      significant:{
+        name:'Significant enhancement in border operations',
+        description:'Approximately 80% of border inspection activities are enhanced, with full reliance on the landbridge corridor (Scenario 2 column for mapped inputs).',
+        inputs:{inspectionEnhance:80,landbridgeShare:100,inspectionCoverage:80}
+      }
+    }
+  }
+};
+
+let curFamily='routes';
+let curLevel='baseline';
+let curPersona='exec';
+let chatHistory=[];
+let replyIdx=0;
+let forecastChart=null;
+let simChart=null;
+let activeInputs={};
+let selectedKpiKey='tt_ob_agri';
+let heatmapTargetSet=new Set(OUTPUT_COLUMN_ORDER);
+let PIPELINE={ready:false,test:{},cv:{},conf:{},selectedModels:{},splitMeta:null,shapCache:{}};
+let LAST_INFERENCE=null;
+let TARGET_META_BY_TARGET = Object.fromEntries(KPI_TARGETS.map(k=>[k.target,k]));
+function syncTargetMeta(){TARGET_META_BY_TARGET=Object.fromEntries(KPI_TARGETS.map(k=>[k.target,k]));}
+let LAST_HEALTH=null;
+let inferTimer=null;
+let inferFullTimer=null;
+let dynamicSliderValues={};
+let modelFeatureValues={};
+
+const DIRECT_ROUTE_EDITABLE_KEYS=new Set([
+  'NA_Im_LB','NA_Im_DR','NA_Ex_LB','NA_Ex_DR','A_Im_LB','A_Im_DR','A_Ex_LB','A_Ex_DR',
+  'ChkTime_Doc','ChkTime_Phy','NumCusShed_D','NumDAFM_D','NumCusShed_R','NumDAFM_R',
+  'Pct_NA_OB_Green','Pct_NA_OB_Red','Pct_A_OB_Red','Pct_NA_IB_Green','Pct_NA_IB_Red','Pct_A_IB_Red','Pct_IB_PreBoard','Pct_OB_PreBoard'
+]);
+const NON_TARIFF_EDITABLE_KEYS=new Set([
+  'NA_Im_LB','NA_Ex_LB','A_Im_LB','A_Ex_LB',
+  'ChkTime_Doc','ChkTime_Phy','NumCusShed_D','NumDAFM_D','NumCusShed_R','NumDAFM_R',
+  'Pct_NA_OB_Green','Pct_NA_OB_Red','Pct_A_OB_Red','Pct_NA_IB_Green','Pct_NA_IB_Red','Pct_A_IB_Red','Pct_IB_PreBoard','Pct_OB_PreBoard'
+]);
+const SCENARIO_EDITABLE_KEYS={routes:DIRECT_ROUTE_EDITABLE_KEYS,border:NON_TARIFF_EDITABLE_KEYS};
+function isEditableByScenarioPolicy(key){
+  const s=SCENARIO_EDITABLE_KEYS[curFamily];
+  if(!s)return true;
+  return s.has(key);
+}
+
+function usesModelFeatureSliders(){
+  const sl=(PIPELINE.meta||{}).input_sliders;
+  return Array.isArray(sl)&&sl.length>0;
+}
+
+function initDynamicSliderDefaults(){
+  if(usesModelFeatureSliders())return;
+  dynamicSliderValues={};
+  dynamicParamRows().forEach(row=>{
+    const s=row.slider;
+    if(!s||!s.defaults)return;
+    const dk=curLevel==='baseline'?'baseline':curLevel==='moderate'?'moderate':'significant';
+    const defv=s.defaults[dk];
+    if(defv!==undefined&&defv!==null)
+      dynamicSliderValues[row.id]=Number(defv);
+  });
+}
+
+function clearInferDebounce(){
+  if(inferTimer)clearTimeout(inferTimer);
+  inferTimer=null;
+  if(inferFullTimer)clearTimeout(inferFullTimer);
+  inferFullTimer=null;
+}
+
+function scheduleInferFast(){
+  if(inferTimer)clearTimeout(inferTimer);
+  inferTimer=setTimeout(()=>{
+    runInference({fast:true}).then(()=>{
+      wiUpdate();
+      renderKPIs();
+      renderSim();
+      renderActions();
+      const ts=new Date().toLocaleTimeString();
+      setInferStatus(true,`Inference: quick · ${ts}`);
+    });
+  },280);
+  if(inferFullTimer)clearTimeout(inferFullTimer);
+  inferFullTimer=setTimeout(()=>{
+    runInference().then(()=>{
+      wiUpdate();
+      renderKPIs();
+      renderForecast();
+      renderHeatmap();
+      renderSim();
+      renderActions();
+      const ts=new Date().toLocaleTimeString();
+      setInferStatus(true,`Inference: connected · ${ts} · charts synced`);
+    });
+  },850);
+}
+
+function prettyInputName(key){
+  const map={
+    directShare:'Direct route share',
+    landbridgeShare:'Landbridge share',
+    ntbIrish:'Irish port NTB intensity',
+    ntbUK:'UK port NTB intensity',
+    inspectionEnhance:'Inspection efficiency enhancement',
+    inspectionCoverage:'Enhanced inspection coverage'
+  };
+  return map[key]||key;
+}
+
+function setBackendStatus(ok, text){
+  const el=document.getElementById('backend-status');
+  el.textContent=text;
+  el.className='status-pill '+(ok?'ok':'bad');
+}
+function setSourceStatus(ok, text){
+  const el=document.getElementById('source-status');
+  el.textContent=text;
+  el.className='status-pill '+(ok?'ok':'bad');
+}
+function setInferStatus(ok, text){
+  const el=document.getElementById('infer-status');
+  el.textContent=text;
+  el.className='status-pill '+(ok?'ok':'bad');
+}
+
+function setScenarioFamily(fam,btn){
+  clearInferDebounce();
+  curFamily=fam;
+  curLevel='baseline';
+  document.querySelectorAll('#scen-sel .scen-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  applyLevelInputs();
+  initDynamicSliderDefaults();
+  runInferenceAndRender().then(()=>render());
+}
+
+function setScenarioLevel(level,btn){
+  clearInferDebounce();
+  curLevel=level;
+  document.querySelectorAll('#level-sel .scen-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  applyLevelInputs();
+  initDynamicSliderDefaults();
+  runInferenceAndRender().then(()=>render());
+}
+
+function setPersona(p,btn){
+  curPersona=p;
+  document.querySelectorAll('.persona-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  chatHistory=[];replyIdx=0;
+  renderChat();
+  renderQuickBtns();
+}
+
+function dynamicParamRows(){
+  return ((PIPELINE.meta||{}).dynamic_ui_parameters||{})[curFamily]||[];
+}
+
+function applyLevelInputs(){
+  const defs=(PIPELINE.meta||{}).feature_defaults_by_scenario;
+  if(defs&&defs[curFamily]&&defs[curFamily][curLevel]){
+    modelFeatureValues={...defs[curFamily][curLevel]};
+    activeInputs={};
+    return;
+  }
+  modelFeatureValues={};
+  if(dynamicParamRows().length){
+    activeInputs={};
+    return;
+  }
+  activeInputs={...SCENARIO_FAMILIES[curFamily].levels[curLevel].inputs};
+}
+
+function fmtDynCell(v){
+  if(v===null||v===undefined)return '—';
+  if(typeof v==='number'&&!Number.isNaN(v))return Number.isInteger(v)?String(v):v.toFixed(2);
+  return String(v);
+}
+
+function render(){
+  renderScenarioLibrary();
+  renderScenarioText();
+  renderDynamicInputs();
+  wiUpdate();
+  renderKPIs();
+  renderSHAP().catch(()=>{});
+  renderSim();
+  renderForecast();
+  renderHeatmap();
+  renderActions();
+  renderChat();
+  renderQuickBtns();
+}
+
+function renderScenarioText(){
+  const fam=SCENARIO_FAMILIES[curFamily];
+  const lvl=fam.levels[curLevel];
+  document.getElementById('scenario-desc').textContent=lvl.description;
+  const sf=((PIPELINE.meta||{}).scenario_families||{})[curFamily];
+  const famTitle=(sf&&sf.title)||fam.title;
+  const sm=((PIPELINE.meta||{}).scenario_mapping||{})[curFamily]||{};
+  const major=(sm.major_change||[]).slice(0,3);
+  const slight=(sm.slight_change||[]).slice(0,3);
+  const change=(sm.change||[]).slice(0,3);
+  const part=(arr)=>arr.map(x=>`${x.parameter}: ${x.description||'mapped parameter'}`).join('<br>');
+  const dp=((LAST_INFERENCE||{}).dynamic_params)||{};
+  const dpNote=dp.loaded?`Dynamic workbook: ${(dp.path||'').split('/').pop()} · mapped rows routes=${(dp.row_counts&&dp.row_counts.routes)||0}, border=${(dp.row_counts&&dp.row_counts.border)||0}`:'Dynamic workbook not found — using sliders only (place `scenario based dynamic input param final.xlsx` or `scenario based dynamic input parameter.xlsx` under UI/).';
+  document.getElementById('scenario-actions').innerHTML=`
+    <div style="margin-bottom:6px">${famTitle}</div>
+    <div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:8px">${dpNote}</div>
+    <div style="font-size:11px"><b>Mapped input parameters (Scenario Mapping workbook)</b></div>
+    <div style="font-size:11px;margin-top:4px"><b>Major change:</b> ${major.length?'<br>'+part(major):'none detected'}</div>
+    <div style="font-size:11px;margin-top:4px"><b>Change:</b> ${change.length?'<br>'+part(change):'none detected'}</div>
+    <div style="font-size:11px;margin-top:4px"><b>Slight change:</b> ${slight.length?'<br>'+part(slight):'none detected'}</div>
+  `;
+}
+
+function renderDynamicInputs(){
+  const el=document.getElementById('dynamic-inputs');
+  const sliders=(PIPELINE.meta||{}).input_sliders;
+  if(sliders&&sliders.length){
+    if(!Object.keys(modelFeatureValues).length)applyLevelInputs();
+    const wb=(PIPELINE.meta||{}).nolhc_designs_workbook;
+    const wbNote=wb?` ExpValues bounds merged from <code>${wb.split('/').pop()}</code> (server path loaded at API start).`:' Place <code>NOLHC Designs - AL Students.xlsx</code> under <code>docs/</code> or <code>UI/</code> to merge ExpValues ranges.';
+    const editableSet=SCENARIO_EDITABLE_KEYS[curFamily];
+    const editableCount=editableSet?editableSet.size:sliders.length;
+    el.innerHTML='<div class="section-divider">NOLHC model inputs (35 features)</div><p class="dim-input-intro">Each slider maps to <b>ExpValues</b>. <b>Landbridge / Direct route / Shift volume</b> rows are <b>tonnes</b> (not %). Scenario family + As-Is / Scenario 1 / 2 reload defaults: Landbridge share 100% / 60% / 15% and Direct route 0% / 40% / 85% of each corridor total (NA_Im, NA_Ex, A_Im, A_Ex). Other fraction inputs use 0–100% on the slider. Bounds: training + workbook.'+wbNote+'</p><div class="policy-note">Scenario policy: '+editableCount+'/35 parameters editable in this family. Locked sliders remain visible for transparency.</div><div class="nolhc-input-grid" id="nolhc-input-grid"></div>';
+    const grid=document.getElementById('nolhc-input-grid');
+    sliders.forEach(spec=>{
+      const id=spec.id;
+      const isPct=spec.display==='percent_0_100';
+      const isTonnes=spec.display==='tonnes';
+      const lo=isPct?spec.min*100:Number(spec.min);
+      const hi=isPct?spec.max*100:Number(spec.max);
+      const step=isPct?Math.max(0.05,Number(spec.step)*100):Number(spec.step);
+      let raw=Number(modelFeatureValues[id]);
+      if(Number.isNaN(raw))raw=Number(spec.min);
+      let show=isPct?raw*100:raw;
+      show=Math.min(hi,Math.max(lo,show));
+      const uid='nfc-'+String(id).replace(/[^a-z0-9]/gi,'_');
+      const uLab=isPct?'%':(spec.unit||'');
+      const editable=isEditableByScenarioPolicy(id);
+      const div=document.createElement('div');
+      div.className='nolhc-input-card';
+      if(!editable)div.classList.add('locked');
+      const prec=step<0.1?2:(step<1?1:0);
+      function fmtVal(v){
+        if(isPct)return v.toFixed(2)+' %';
+        if(isTonnes)return Math.round(v).toLocaleString()+' t';
+        return uLab?v.toFixed(prec)+' '+uLab:v.toFixed(prec);
+      }
+      const head=document.createElement('div');
+      head.className='wi-top';
+      head.style.marginBottom='4px';
+      head.innerHTML=`<span class="wi-label" title="${(spec.description||'').replace(/"/g,'&quot;')}">${spec.label}</span><span class="wi-val" id="${uid}-val">${fmtVal(show)}</span>`;
+      const code=document.createElement('div');
+      code.className='nolhc-code';
+      code.textContent=id;
+      const row=document.createElement('div');
+      row.className='wi-row';
+      row.style.marginTop='6px';
+      const inp=document.createElement('input');
+      inp.type='range';
+      inp.min=String(lo);
+      inp.max=String(hi);
+      inp.step=String(step);
+      inp.value=String(show);
+      inp.oninput=()=>{
+        if(!editable)return;
+        const v=Number(inp.value);
+        if(isPct){
+          modelFeatureValues[id]=v/100;
+          document.getElementById(uid+'-val').textContent=v.toFixed(2)+' %';
+        }else{
+          modelFeatureValues[id]=v;
+          document.getElementById(uid+'-val').textContent=fmtVal(v);
+        }
+        scheduleInferFast();
+      };
+      inp.disabled=!editable;
+      row.appendChild(inp);
+      div.appendChild(head);
+      div.appendChild(code);
+      if(!editable){
+        const lk=document.createElement('div');
+        lk.className='lock-note';
+        lk.textContent='🔒 Locked by scenario family policy';
+        div.appendChild(lk);
+      }
+      div.appendChild(row);
+      grid.appendChild(div);
+    });
+    return;
+  }
+  const rows=dynamicParamRows();
+  if(rows.length){
+    if(!Object.keys(dynamicSliderValues).length)initDynamicSliderDefaults();
+    el.innerHTML='<div class="section-divider">Dynamic parameters (workbook)</div><p class="dim-input-intro">Adjust sliders within the allowed range. Route shares and % inputs use 0–100. Check timings use <b>minutes</b> from the model baseline × Excel %. Sheds, bays, and vessel capacity use counts / trailers. Scenario level (As-Is / Scenario 1 / 2) reloads defaults from the sheet; then you can override.</p><div class="dyn-param-list" id="dyn-param-list"></div>';
+    const list=document.getElementById('dyn-param-list');
+    rows.forEach(row=>{
+      const bucket=row.change_bucket||'unspecified';
+      let badge='tag-bucket-neutral';
+      if(bucket==='major_change') badge='tag-bucket-major';
+      else if(bucket==='change') badge='tag-bucket-change';
+      else if(bucket==='slight_change') badge='tag-bucket-slight';
+      const cur=curLevel==='baseline'?row.ideal:(curLevel==='moderate'?row.scenario_1:row.scenario_2);
+      const pct=curLevel==='moderate'?row.pct_delta_scenario_1_vs_ideal:curLevel==='significant'?row.pct_delta_scenario_2_vs_ideal:null;
+      const pctStr=(pct===null||pct===undefined||Number.isNaN(pct))?'—':((pct>=0?'+':'')+Number(pct).toFixed(1)+'%');
+      const div=document.createElement('div');
+      div.className='dyn-param-card';
+      const spec=row.slider;
+      let sliderHtml='';
+      if(spec&&spec.min!==undefined&&spec.max!==undefined){
+        const v=dynamicSliderValues[row.id]!==undefined?Number(dynamicSliderValues[row.id]):Number(spec.defaults&&(spec.defaults[curLevel==='baseline'?'baseline':curLevel==='moderate'?'moderate':'significant'])||spec.min);
+        const step=spec.step||1;
+        const uid='dyn-'+row.id.replace(/[^a-z0-9]/gi,'_');
+        sliderHtml=`<div class="wi-row" style="margin-top:8px"><div class="wi-top"><span class="wi-label">${spec.unit||''} (range)</span><span class="wi-val" id="${uid}-val">${typeof v==='number'?v.toFixed( step<1?2:0):v}</span></div><input type="range" id="${uid}" min="${spec.min}" max="${spec.max}" step="${step}" value="${v}" oninput="dynamicSliderValues['${row.id}']=Number(this.value);document.getElementById('${uid}-val').textContent=this.value;scheduleInferFast();"></div>`;
+      }else{
+        sliderHtml='<div class="dyn-param-desc" style="margin-top:6px">Derived / display-only</div>';
+      }
+      div.innerHTML=`<div class="dyn-param-head"><span class="dyn-param-label" title="${(row.description||'').replace(/"/g,'&quot;')}">${row.label}</span><span class="panel-tag ${badge}">${String(bucket).replace(/_/g,' ')}</span></div>${row.description?`<div class="dyn-param-desc">${row.description}</div>`:''}<div class="dyn-param-grid"><div><span class="dyn-k">Sheet (AS-IS)</span><span class="dyn-v">${fmtDynCell(row.ideal)}</span></div><div><span class="dyn-k">Sheet scenario</span><span class="dyn-v">${fmtDynCell(cur)}</span></div><div><span class="dyn-k">Δ vs AS-IS</span><span class="dyn-v">${pctStr}</span></div></div>${sliderHtml}`;
+      list.appendChild(div);
+    });
+    return;
+  }
+  const defs=curFamily==='routes'
+    ?[
+      {key:'directShare',label:'Direct Ireland–EU share (%)',min:0,max:100,step:1},
+      {key:'landbridgeShare',label:'Landbridge share (%)',min:0,max:100,step:1},
+      {key:'ntbIrish',label:'Non-tariff barrier intensity at Irish ports (%)',min:0,max:100,step:1},
+      {key:'ntbUK',label:'Non-tariff barrier intensity at UK ports (%)',min:0,max:100,step:1}
+    ]
+    :[
+      {key:'inspectionEnhance',label:'Border inspection efficiency enhancement (%)',min:0,max:100,step:1},
+      {key:'inspectionCoverage',label:'Inspection activities enhanced coverage (%)',min:0,max:100,step:1},
+      {key:'landbridgeShare',label:'Landbridge freight share (%)',min:0,max:100,step:1}
+    ];
+  el.innerHTML='<div class="section-divider">Scenario inputs (fallback)</div><p class="dim-input-intro">No rows in <code>scenario based dynamic input parameter.xlsx</code> — using generic sliders.</p>';
+  defs.forEach(d=>{
+    const v=Number(activeInputs[d.key]||0);
+    const row=document.createElement('div');
+    row.className='wi-row';
+    row.innerHTML=`<div class="wi-top"><span class="wi-label">${d.label}</span><span class="wi-val" id="val-${d.key}">${v}</span></div><input type="range" min="${d.min}" max="${d.max}" value="${v}" step="${d.step}" oninput="activeInputs['${d.key}']=Number(this.value);document.getElementById('val-${d.key}').textContent=this.value;scheduleInferFast();">`;
+    el.appendChild(row);
+  });
+}
+
+function renderKPIs(){
+  const grid=document.getElementById('kpi-grid');
+  grid.innerHTML='';
+  KPI_TARGETS.forEach(meta=>{
+    const p=((LAST_INFERENCE||{}).predictions||{})[meta.target]||{};
+    const adjusted=Number(p.prediction||0);
+    const base=Number(p.baseline_prediction||0);
+    const delta=Number(p.delta_vs_baseline||0);
+    const lo=Number((((p.interval||{}).lower)||0));
+    const hi=Number((((p.interval||{}).upper)||0));
+    const dClass=(meta.positiveLower?delta<=0:delta>=0)?'delta-pos':'delta-neg';
+    const div=document.createElement('div');
+    div.className='kpi-card'+(meta.key===selectedKpiKey?' selected':'');
+    div.onclick=()=>{selectedKpiKey=meta.key;runInferenceAndRender().then(()=>{renderSHAP().catch(()=>{});renderActions();});};
+    div.innerHTML=`<div class="kpi-label">${meta.label}</div><div class="kpi-value">${meta.scalePct?(adjusted*100).toFixed(2):adjusted.toFixed(3)}<span style="font-size:12px;font-weight:400;color:var(--color-text-secondary)"> ${meta.scalePct?'%':meta.unit}</span></div><div class="kpi-delta ${dClass}">${delta>=0?'+':''}${meta.scalePct?(delta*100).toFixed(2):delta.toFixed(3)} ${meta.scalePct?'pp':meta.unit} vs As-Is</div><div class="kpi-interval">Prediction interval: [${meta.scalePct?(lo*100).toFixed(2):lo.toFixed(3)}, ${meta.scalePct?(hi*100).toFixed(2):hi.toFixed(3)}]</div><div style="font-size:10px;color:var(--color-text-tertiary);margin-top:2px">Code: ${meta.target}</div>`;
+    grid.appendChild(div);
+  });
+}
+
+async function renderSHAP(){
+  const meta=KPI_TARGETS.find(k=>k.key===selectedKpiKey)||KPI_TARGETS[0];
+  const target=meta.target;
+  const model=PIPELINE.selectedModels[target];
+  const shap=await loadShapImportance(target,model);
+  const maxV=Math.max(...shap.map(s=>s.val),0.0001);
+  const container=document.getElementById('shap-bars');
+  container.innerHTML='';
+  shap.forEach((s,idx)=>{
+    const pct=Math.round((s.val/maxV)*100);
+    const col=idx%2===0?'#185FA5':'#A32D2D';
+    const row=document.createElement('div');
+    row.className='feat-row';
+    row.innerHTML=`<div class="feat-name" title="${s.name}">${s.readableName||s.name}</div><div class="feat-bar-bg"><div class="feat-bar-fill" style="width:${pct}%;background:${col}"></div></div><div class="feat-val" style="color:${col}">${s.val.toFixed(4)}</div>`;
+    container.appendChild(row);
+  });
+  const top=shap[0]||{name:'n/a',val:0};
+  document.getElementById('shap-caption').textContent=`Top SHAP feature: ${top.readableName||top.name} (mean |SHAP| ${top.val.toFixed(4)}), target ${target}, model ${model}`;
+}
+
+function renderSim(){updateSimChart();}
+function updateSimChart(){
+  const mc=((LAST_INFERENCE||{}).monte_carlo)||{};
+  const dist=(mc.counts||[]);
+  const labels=(mc.bins||[]);
+  if(!labels.length || !dist.length){return;}
+  if(simChart){simChart.destroy();simChart=null;}
+  simChart=new Chart(document.getElementById('sim-chart'),{
+    type:'bar',
+    data:{labels,datasets:[{data:dist,backgroundColor:'#B5D4F4',borderColor:'#378ADD',borderWidth:0.5}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9},color:'#888780'},grid:{display:false}},y:{ticks:{font:{size:9},color:'#888780'},grid:{color:'rgba(0,0,0,0.05)'}}}}
+  });
+}
+
+function renderForecast(){
+  const meta=KPI_TARGETS.find(k=>k.key===selectedKpiKey)||KPI_TARGETS[0];
+  const target=meta.target;
+  const trend=((LAST_INFERENCE||{}).trend_12m||{})[target]||{};
+  const months=['M1','M2','M3','M4','M5','M6','M7','M8','M9','M10','M11','M12'];
+  const pt=(trend.point||[]).length===12 ? trend.point : months.map(()=>0);
+  const upper=(trend.upper||[]).length===12 ? trend.upper : months.map(()=>0);
+  const lower=(trend.lower||[]).length===12 ? trend.lower : months.map(()=>0);
+  if(forecastChart){forecastChart.destroy();forecastChart=null;}
+  forecastChart=new Chart(document.getElementById('forecast-chart'),{
+    type:'line',
+    data:{labels:months,datasets:[
+      {data:upper,borderColor:'rgba(55,138,221,0.25)',backgroundColor:'rgba(55,138,221,0.08)',fill:'+1',pointRadius:0,borderWidth:1,tension:0.4},
+      {data:pt,borderColor:'#185FA5',backgroundColor:'transparent',pointRadius:2,borderWidth:1.5,tension:0.4},
+      {data:lower,borderColor:'rgba(55,138,221,0.25)',backgroundColor:'rgba(55,138,221,0.08)',fill:false,pointRadius:0,borderWidth:1,tension:0.4}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9},color:'#888780'},grid:{display:false}},y:{ticks:{font:{size:9},color:'#888780'},grid:{color:'rgba(0,0,0,0.05)'}}}}
+  });
+}
+
+function renderHeatmapToggles(){
+  const td=((PIPELINE.meta||{}).target_descriptions)||{};
+  const el=document.getElementById('heatmap-target-toggles');
+  if(!el)return;
+  el.innerHTML='';
+  OUTPUT_COLUMN_ORDER.forEach(t=>{
+    const lab=(td[t]||t).split(',')[0].trim().slice(0,26);
+    const cb=document.createElement('label');
+    const ipt=document.createElement('input');
+    ipt.type='checkbox';
+    ipt.checked=heatmapTargetSet.has(t);
+    ipt.onchange=()=>{
+      if(ipt.checked){heatmapTargetSet.add(t);}else{heatmapTargetSet.delete(t);}
+      if(heatmapTargetSet.size<2){ipt.checked=true;heatmapTargetSet.add(t);}
+      runInferenceAndRender();
+    };
+    cb.appendChild(ipt);
+    cb.appendChild(document.createTextNode(' '+lab));
+    el.appendChild(cb);
+  });
+}
+
+function renderHeatmap(){
+  const tc=((LAST_INFERENCE||{}).target_correlation)||{};
+  const targets=tc.targets||[];
+  const matrix=tc.matrix||[];
+  const n=targets.length;
+  const td=((PIPELINE.meta||{}).target_descriptions)||{};
+  const short=t=>{
+    const x=KPI_LABEL_OVERRIDES[t]||(td[t]||t);
+    return x
+      .replace('Waiting Time','WT')
+      .replace('Transport Time','TT')
+      .replace('Outbound','OB')
+      .replace('Inbound','IB')
+      .replace('Export','EX')
+      .replace('Import','IM')
+      .replace('Non-Agri','NA')
+      .replace('Agri','A')
+      .replace('Dublin','Dub')
+      .replace('Rosslare','Ross')
+      .slice(0,28);
+  };
+  if(!matrix.length||n<2){
+    document.getElementById('heatmap').innerHTML='<div style="font-size:11px;color:var(--color-text-secondary)">Select at least two output targets above. Correlation matrix is computed from Monte Carlo jitter of scenario inputs (same run as the histogram).</div>';
+    return;
+  }
+  const sz=Math.max(24,Math.min(44,Math.floor(380/Math.max(n,1)))),pad=52;
+  const total=n*sz+pad;
+  let svg=`<svg width="100%" viewBox="0 0 ${total+pad} ${total+pad}" xmlns="http://www.w3.org/2000/svg" style="font-family:var(--font-sans)">`;
+  targets.forEach((k,i)=>{
+    svg+=`<text x="${pad+i*sz+sz/2}" y="${pad-18}" text-anchor="middle" font-size="7" fill="#888780">${short(k)}</text>`;
+    svg+=`<text x="${pad-6}" y="${pad+i*sz+sz/2+3}" text-anchor="end" font-size="7" fill="#888780">${short(k)}</text>`;
+  });
+  for(let i=0;i<n;i++){
+    for(let j=0;j<n;j++){
+      const v=Number((matrix[i]&&matrix[i][j])||0);
+      const r=i===j?'#E6F1FB':v>=0?`rgba(24,95,165,${Math.min(0.95,Math.abs(v)*0.9)})`:`rgba(163,45,45,${Math.min(0.95,Math.abs(v)*0.9)})`;
+      svg+=`<rect x="${pad+j*sz}" y="${pad+i*sz}" width="${sz-1}" height="${sz-1}" rx="2" fill="${r}"/>`;
+      svg+=`<text x="${pad+j*sz+sz/2}" y="${pad+i*sz+sz/2+3}" text-anchor="middle" font-size="7" fill="${Math.abs(v)>0.45&&i!==j?'#fff':'#5f5e5a'}">${v.toFixed(2)}</text>`;
+    }
+  }
+  svg+='</svg>';
+  document.getElementById('heatmap').innerHTML=svg+`<div style="margin-top:6px;font-size:10px;color:var(--color-text-secondary)">Pearson correlation across ${tc.n_samples||0} Monte Carlo samples · ${n} targets.</div>`;
+}
+
+function renderActions(){
+  const fam=SCENARIO_FAMILIES[curFamily];
+  const lvl=fam.levels[curLevel];
+  const meta=KPI_TARGETS.find(k=>k.key===selectedKpiKey)||KPI_TARGETS[0];
+  const sample=((LAST_INFERENCE||{}).predictions||{})[meta.target]||{};
+  const actions=[
+    {t:'Primary scenario focus',b:lvl.name,p:'high',impact:lvl.description.slice(0,95)+'...'},
+    {t:'Top lever from SHAP',b:'Use top feature in XAI panel as the first lever for intervention sequencing.',p:'high',impact:'Model-grounded lever'},
+    {t:'Uncertainty guardrail',b:'Conformal interval width indicates uncertainty budget; use this before committing route inspection policies.',p:'med',impact:'Coverage-aware decision'},
+    {t:'72-hour operations',b:curFamily==='routes'?'Adjust dispatch share between direct route and landbridge in daily planning.':'Prioritize border inspection throughput where enhancement is active.',p:'med',impact:'Near-term action'},
+    {t:'Analyst follow-up',b:'After official test evaluation, compare train vs test SHAP explain split stability.',p:'low',impact:'Attribution stability'},
+    {t:'Strict model output delta',b:`${meta.label} delta vs Pre-Brexit (As-Is): ${Number(sample.delta_vs_baseline||0).toFixed(meta.scalePct?4:3)} ${meta.scalePct?'pp':meta.unit}`,p:'low',impact:'Traceable inference'}
+  ];
+  const grid=document.getElementById('actions-grid');
+  grid.innerHTML='';
+  actions.forEach(a=>{const impClass=a.p==='high'?'impact-high':a.p==='med'?'impact-med':'impact-low';const div=document.createElement('div');div.className=`action-card ${a.p}`;div.innerHTML=`<div class="action-title">${a.t}</div><div class="action-body">${a.b}</div><div class="action-impact ${impClass}">${a.impact}</div>`;grid.appendChild(div);});
+}
+
+function renderChat(){
+  const feed=document.getElementById('chat-feed');
+  feed.innerHTML='';
+  chatHistory=[];
+  const fam=SCENARIO_FAMILIES[curFamily];
+  const lvl=fam.levels[curLevel];
+  addBubble('llm',`${PERSONAS[curPersona].name} view: ${lvl.name}. ${lvl.description}`);
+}
+
+function renderQuickBtns(){
+  const container=document.getElementById('quick-btns');
+  container.innerHTML='';
+  (QUICK_Q[curPersona]||[]).forEach(q=>{const btn=document.createElement('button');btn.className='q-btn';btn.textContent=q;btn.onclick=()=>{document.getElementById('chat-inp').value=q;userSend();};container.appendChild(btn);});
+}
+
+function addBubble(role,text){
+  const feed=document.getElementById('chat-feed');
+  const p=PERSONAS[curPersona];
+  const av=role==='llm'?p.label:'U';
+  const div=document.createElement('div');
+  div.className=`msg ${role}`;
+  div.innerHTML=`<div class="av ${role}">${av}</div><div class="bubble">${text}</div>`;
+  feed.appendChild(div);
+  feed.scrollTop=feed.scrollHeight;
+}
+
+function showTyping(){const feed=document.getElementById('chat-feed');const p=PERSONAS[curPersona];const div=document.createElement('div');div.className='msg llm';div.id='typing-ind';div.innerHTML=`<div class="av llm">${p.label}</div><div class="bubble"><span class="dots"><span></span><span></span><span></span></span></div>`;feed.appendChild(div);feed.scrollTop=feed.scrollHeight;}
+function removeTyping(){const el=document.getElementById('typing-ind');if(el)el.remove();}
+
+function userSend(){
+  const inp=document.getElementById('chat-inp');
+  const txt=inp.value.trim();if(!txt)return;
+  addBubble('user',txt);
+  inp.value='';
+  showTyping();
+  setTimeout(()=>{removeTyping();addBubble('llm',generatePersonaReply(txt));},700);
+}
+
+function renderScenarioLibrary(){
+  const container=document.getElementById('scen-library');
+  container.innerHTML='';
+  const levels=['baseline','moderate','significant'];
+  Object.keys(SCENARIO_FAMILIES).forEach(fid=>{
+    const fam=SCENARIO_FAMILIES[fid];
+    levels.forEach(levelKey=>{
+      const lvl=fam.levels[levelKey];
+    const div=document.createElement('div');
+      div.className='scen-card'+((curFamily===fid&&curLevel===levelKey)?' active-card':'');
+      div.innerHTML=`<div class="scen-card-name">${fid==='routes'?'Family 1':'Family 2'} · ${lvl.name}</div><span class="panel-tag ${fid==='routes'?'tag-ml':'tag-llm'} scen-card-tag">${levelKey}</span><div class="scen-card-desc">${lvl.description}</div><div class="scen-card-params"><span>${Object.entries(lvl.inputs).map(([k,v])=>prettyInputName(k)+': '+v+'%').join(' · ')}</span></div><div class="scen-use">${fam.title}</div>`;
+      div.onclick=()=>{const familyBtn=document.querySelector(`#scen-sel .scen-btn[onclick*="${fid}"]`);if(familyBtn) setScenarioFamily(fid,familyBtn);const levelBtn=document.querySelector(`#level-sel .scen-btn[onclick*="${levelKey}"]`);if(levelBtn) setScenarioLevel(levelKey,levelBtn);};
+    container.appendChild(div);
+    });
+  });
+}
+
+function wiUpdate(){
+  const pred=((LAST_INFERENCE||{}).predictions)||{};
+  const cells=KPI_TARGETS.map(meta=>{
+    const p=pred[meta.target]||{};
+    const val=meta.scalePct?(Number(p.prediction||0)*100).toFixed(2)+'%':Number(p.prediction||0).toFixed(3)+' '+meta.unit;
+    const d=p.delta_vs_baseline||0;
+    const dStr=meta.scalePct?(d*100).toFixed(2)+' pp':d.toFixed(3)+' '+meta.unit;
+    return `<div class="wi-kpi"><div class="wi-kpi-label">${meta.label}</div><div class="wi-kpi-val">${val}</div><div class="wi-kpi-delta delta-neu">Δ ${d>=0?'+':''}${dStr} vs As-Is · cov ${(Number(p.empirical_coverage||0)*100).toFixed(0)}%</div></div>`;
+  }).join('');
+  document.getElementById('wi-output').innerHTML=cells;
+  const mc=((LAST_INFERENCE||{}).monte_carlo)||{};
+  const direct=!!((LAST_INFERENCE||{}).use_direct_model_features);
+  document.getElementById('wi-narrative').textContent=`Active ${curFamily==='routes'?'direct-route':'non-tariff border'} family at ${curLevel}. ${direct?'Inputs: 35 NOLHC ExpValues features (direct). ':' '}Delta vs Pre-Brexit uses AS-IS column from the scenario workbooks for the reference vector. Monte Carlo: ${mc.target||'KPI'} · ${mc.counts?mc.counts.reduce((a,b)=>a+b,0):0} samples.`;
+}
+
+function wiReset(){clearInferDebounce();applyLevelInputs();initDynamicSliderDefaults();renderDynamicInputs();runInferenceAndRender();}
+function wiApply(){clearInferDebounce();runInferenceAndRender();}
+
+async function fetchJson(path){const r=await fetch(path);if(!r.ok) throw new Error(path);return r.json();}
+async function fetchText(path){const r=await fetch(path);if(!r.ok) throw new Error(path);return r.text();}
+function parseCsv(text){const lines=text.trim().split(/\r?\n/);const headers=lines[0].split(',');return lines.slice(1).map(line=>{const cols=line.split(',');const o={};headers.forEach((h,i)=>o[h]=cols[i]);return o;});}
+async function loadShapImportance(target,model){
+  const key=target+'__'+model;
+  if(PIPELINE.shapCache[key]) return PIPELINE.shapCache[key];
+  try{
+    const file=`../outputs/step4_shap/${target.replace(/[^a-zA-Z0-9_.-]+/g,'_')}__${model.replace(/[^a-zA-Z0-9_.-]+/g,'_')}__importance.csv`;
+    const txt=await fetchText(file);
+    const fmap=((PIPELINE.meta||{}).feature_descriptions||{});
+    const rows=parseCsv(txt).slice(0,6).map(r=>{
+      const raw=r.feature;
+      let readable=fmap[raw]||raw;
+      if(readable.includes(',')){readable=readable.split(',')[0].trim();}
+      return {name:raw,readableName:readable,val:Number(r.mean_abs_shap||0)};
+    });
+    PIPELINE.shapCache[key]=rows.length?rows:[{name:'no_data',readableName:'no data',val:0.0001}];
+  }catch(e){
+    PIPELINE.shapCache[key]=[{name:'missing_shap_file',readableName:'missing shap file',val:0.0001}];
+  }
+  return PIPELINE.shapCache[key];
+}
+
+async function loadPipelineData(){
+  try{
+    PIPELINE.test=await fetchJson('../outputs/test_results.json');
+    PIPELINE.cv=await fetchJson('../outputs/cv_results.json');
+    PIPELINE.conf=await fetchJson('../outputs/conformal_results.json');
+    PIPELINE.splitMeta=await fetchJson('../outputs/trained_models/split_meta.json');
+    const selectedCsv=await fetchText('../outputs/step4_shap/shap_selected_models.csv');
+    parseCsv(selectedCsv).forEach(r=>{PIPELINE.selectedModels[r.target]=r.model;});
+    try{
+      PIPELINE.meta=await fetchJson('/api/meta');
+    }catch(_e){
+      PIPELINE.meta={ok:false,feature_descriptions:{},target_descriptions:{},scenario_mapping:{}};
+    }
+    PIPELINE.ready=true;
+    KPI_TARGETS=buildKpiTargets((PIPELINE.meta||{}).target_descriptions||{});
+    syncTargetMeta();
+    if(!KPI_TARGETS.find(k=>k.key===selectedKpiKey)){selectedKpiKey=KPI_TARGETS[0].key;}
+    heatmapTargetSet=new Set(OUTPUT_COLUMN_ORDER);
+    setSourceStatus(true,'Data source: outputs + api/meta loaded');
+  }catch(e){
+    document.getElementById('wi-narrative').textContent='Could not load ../outputs artifacts. Serve this page via a local web server and keep outputs files in place.';
+    setSourceStatus(false,'Data source: missing outputs');
+    console.error(e);
+  }
+}
+
+async function runInference(opts){
+  const fast=opts&&opts.fast;
+  try{
+    const focus=(KPI_TARGETS.find(k=>k.key===selectedKpiKey)||KPI_TARGETS[0]).target;
+    const hm=[...heatmapTargetSet].filter(t=>OUTPUT_COLUMN_ORDER.includes(t));
+    const heatmap_targets=hm.length>=2?hm:OUTPUT_COLUMN_ORDER.slice(0,Math.min(8,OUTPUT_COLUMN_ORDER.length));
+    const body={
+      scenario_family:curFamily,
+      scenario_level:curLevel,
+      inputs:activeInputs,
+      focus_target:focus,
+      light:!!fast,
+      include_trend:!fast,
+      include_target_corr:!fast,
+      mc_samples:fast?48:180,
+      heatmap_targets:fast?heatmap_targets.slice(0,8):heatmap_targets
+    };
+    if(usesModelFeatureSliders()&&Object.keys(modelFeatureValues).length){
+      body.model_features=modelFeatureValues;
+    }else{
+      body.dynamic_sliders=dynamicSliderValues;
+    }
+    const res=await fetch('/api/infer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const data=await res.json();
+    if(!data.ok){throw new Error(data.error||'inference failed');}
+    LAST_INFERENCE=data;
+    const n=(data.monte_carlo&&data.monte_carlo.n_samples)||0;
+    const ts=new Date().toLocaleTimeString();
+    setInferStatus(true,`Inference: connected · ${ts} · MC n=${n}${fast?' · quick':''}`);
+  }catch(e){
+    document.getElementById('wi-narrative').textContent='Inference API unavailable. Serve this page via the API (python run_ui_inference_api.py) and open from http://127.0.0.1:8000/UI/...';
+    setInferStatus(false,'Inference: disconnected');
+    console.error(e);
+  }
+}
+
+async function runInferenceAndRender(opts){
+  await runInference(opts);
+  wiUpdate();
+  renderKPIs();
+  if(!opts||!opts.fast){
+    renderForecast();
+    renderHeatmap();
+  }
+  renderSim();
+  renderActions();
+}
+
+async function checkBackendHealth(){
+  try{
+    const h=await fetchJson('/api/health');
+    LAST_HEALTH=h;
+    if(h.ok && h.backend_connected){
+      setBackendStatus(true,`Backend: connected · models=${Number(h.n_targets||0)}`);
+    }else{
+      setBackendStatus(false,'Backend: disconnected');
+    }
+  }catch(_e){
+    setBackendStatus(false,'Backend: disconnected');
+  }
+}
+
+function generatePersonaReply(question){
+  const q=question.toLowerCase();
+  const meta=KPI_TARGETS.find(k=>k.key===selectedKpiKey)||KPI_TARGETS[0];
+  const target=meta.target;
+  const p=((LAST_INFERENCE||{}).predictions||{})[target]||{};
+  const mc=((LAST_INFERENCE||{}).monte_carlo)||{};
+  const width=Number((((p.interval||{}).width)||0));
+  const cov=Number(p.empirical_coverage||0);
+  const pred=Number(p.prediction||0);
+  const delta=Number(p.delta_vs_baseline||0);
+  const famLabel=curFamily==='routes'?'Route Shift scenario':'Border Efficiency scenario';
+  const shap=((PIPELINE.shapCache||{})[`${target}__${p.model||PIPELINE.selectedModels[target]}`]||[]);
+  const top1=shap[0]? (shap[0].readableName||shap[0].name) : 'n/a';
+  const top2=shap[1]? (shap[1].readableName||shap[1].name) : 'n/a';
+  if(q.includes('uncertainty') || q.includes('wide') || q.includes('interval')){
+    if(curPersona==='risk'){
+      return `Risk view — ${meta.label}: prediction ${pred.toFixed(3)} ${meta.scalePct?'%':meta.unit}, interval width ${width.toFixed(3)} ${meta.scalePct?'pp':meta.unit}, empirical coverage ${(cov*100).toFixed(1)}%. Monte Carlo p10=${Number(mc.p10||0).toFixed(3)}, p90=${Number(mc.p90||0).toFixed(3)}. Wider gap means higher execution risk under ${famLabel.toLowerCase()}.`;
+    }
+    return `${famLabel} (${curLevel}) for ${meta.label}: predicted ${pred.toFixed(3)} ${meta.scalePct?'%':meta.unit}, interval width ${width.toFixed(3)} ${meta.scalePct?'pp':meta.unit}, empirical coverage ${(cov*100).toFixed(1)}%. Monte Carlo p10=${Number(mc.p10||0).toFixed(3)}, p90=${Number(mc.p90||0).toFixed(3)}.`;
+  }
+  if(q.includes('not guaranteed') || q.includes('guarantee') || q.includes('caveat')){
+    return `Not guaranteed: (1) interval is empirical from hold-out calibration, not a regulatory guarantee, (2) scenario mapping assumptions translate sliders into model features, (3) regime shifts outside training design can widen true error beyond this band. Current measured empirical coverage is ${(cov*100).toFixed(1)}%.`;
+  }
+  if(q.includes('what changed') || q.includes('change') || q.includes('difference')){
+    return `${famLabel} (${curLevel}) changes ${meta.label} by ${delta>=0?'+':''}${delta.toFixed(3)} ${meta.scalePct?'pp':meta.unit} versus baseline inference (${Number(p.baseline_prediction||0).toFixed(3)} -> ${pred.toFixed(3)}).`;
+  }
+  if(q.includes('driver') || q.includes('lever') || q.includes('feature')){
+    if(shap[0]){return `Top modeled levers for ${meta.label}: (1) ${top1} and (2) ${top2}. Primary attribution magnitude for ${top1} is ${Number(shap[0].val||0).toFixed(4)} mean |SHAP|. Use these first when testing actions for ${famLabel.toLowerCase()}.`;}
+  }
+  if(curPersona==='exec'){
+    return `Executive summary — ${famLabel} (${curLevel}): ${meta.label} is ${pred.toFixed(3)} ${meta.scalePct?'%':meta.unit} (${delta>=0?'+':''}${delta.toFixed(3)} vs baseline). Main lever is ${top1}. Uncertainty band width is ${width.toFixed(3)} ${meta.scalePct?'pp':meta.unit}.`;
+  }
+  if(curPersona==='ops'){
+    return `Operations view — under ${famLabel.toLowerCase()}, focus on ${top1} and ${top2}. ${meta.label} is ${pred.toFixed(3)} ${meta.scalePct?'%':meta.unit}; baseline shift ${delta>=0?'+':''}${delta.toFixed(3)}. Next 72h: test interventions on these two levers and track interval drift.`;
+  }
+  if(curPersona==='analyst'){
+    return `Analyst view — ${meta.label}: prediction ${pred.toFixed(3)}, baseline ${Number(p.baseline_prediction||0).toFixed(3)}, interval [${Number((((p.interval||{}).lower)||0)).toFixed(3)}, ${Number((((p.interval||{}).upper)||0)).toFixed(3)}], empirical coverage ${(cov*100).toFixed(1)}%, model ${p.model||'n/a'}. SHAP top drivers: ${top1}, ${top2}.`;
+  }
+  return `${famLabel} (${curLevel}) | ${meta.label}: prediction ${pred.toFixed(3)} ${meta.scalePct?'%':meta.unit}, baseline ${Number(p.baseline_prediction||0).toFixed(3)}, interval [${Number((((p.interval||{}).lower)||0)).toFixed(3)}, ${Number((((p.interval||{}).upper)||0)).toFixed(3)}], empirical coverage ${(cov*100).toFixed(1)}%.`;
+}
+
+(async function boot(){
+  setBackendStatus(false,'Backend: checking');
+  setSourceStatus(false,'Data source: checking');
+  setInferStatus(false,'Inference: waiting');
+  applyLevelInputs();
+  await checkBackendHealth();
+  await loadPipelineData();
+  applyLevelInputs();
+  initDynamicSliderDefaults();
+  renderHeatmapToggles();
+  await runInference();
+render();
+})();
+</script>
+</body>
+</html>

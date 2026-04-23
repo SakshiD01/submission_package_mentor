@@ -1,0 +1,11 @@
+{
+  "holdout_n": 26,
+  "nominal_coverage_reporting": 0.9,
+  "split_meta": "/Users/iniyanilaalagunirmal/Desktop/Final Brexit ML Design/experimenting_ml/outputs/trained_models/split_meta.json",
+  "outputs": {
+    "long_predictions": "outputs/test_evaluation_final/selected_holdout_predictions_long.csv",
+    "summary": "outputs/test_evaluation_final/selected_holdout_summary.csv",
+    "narrative": "outputs/test_evaluation_final/TEST_EVAL_NARRATIVE.md",
+    "adaptive_conformal_selected": "outputs/test_evaluation_final/selected_model_adaptive_conformal_from_step9.csv"
+  }
+}

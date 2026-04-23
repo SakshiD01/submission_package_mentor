@@ -1,0 +1,17 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+catboost_info/
+.mypy_cache/
+*.egg-info/
+dist/
+build/
+.env
+.idea/
+.vscode/
+.DS_Store
+data/processed/*.parquet
+models/v*/*
+!models/v*/.gitkeep

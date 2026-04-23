@@ -1,0 +1,148 @@
+{
+  "cv_json": "/Users/iniyanilaalagunirmal/Desktop/Final Brexit ML Design/experimenting_ml/outputs/cv_results.json",
+  "shortlist_k": 5,
+  "shortlist_mode": "topk_mean_cv_rmse",
+  "all_models": false,
+  "per_target_shortlist": {
+    "TT_OB_Agri": [
+      "ExtraTrees",
+      "CatBoost",
+      "XGBoost",
+      "AdaBoost",
+      "GradientBoosting"
+    ],
+    "WT_OB_A_GB-Dub": [
+      "ElasticNet",
+      "Lasso",
+      "GPR_Matern",
+      "Ridge",
+      "BayesianRidge"
+    ],
+    "WT_OB_A_GB-Ross": [
+      "GradientBoosting",
+      "GPR_Matern",
+      "CatBoost",
+      "XGBoost",
+      "ExtraTrees"
+    ],
+    "TT_IB_Agri": [
+      "ExtraTrees",
+      "XGBoost",
+      "GradientBoosting",
+      "CatBoost",
+      "AdaBoost"
+    ],
+    "WT_IB_A_Dub": [
+      "GPR_Matern",
+      "CatBoost",
+      "LightGBM",
+      "Lasso",
+      "ElasticNet"
+    ],
+    "WT_IB_A_Ross": [
+      "GPR_Matern",
+      "ElasticNet",
+      "Lasso",
+      "CatBoost",
+      "XGBoost"
+    ],
+    "WT_IB_NA_Dub": [
+      "Lasso",
+      "ElasticNet",
+      "Ridge",
+      "BayesianRidge",
+      "Baseline_OLS"
+    ],
+    "WT_OB_NA_GB-Dub": [
+      "ElasticNet",
+      "Lasso",
+      "GPR_Matern",
+      "BayesianRidge",
+      "Ridge"
+    ],
+    "WT_IB_NA_Ross": [
+      "SVR_RBF",
+      "SVR_Poly",
+      "KNN",
+      "LightGBM",
+      "Lasso"
+    ],
+    "WT_OB_NA_GB-Ross": [
+      "Lasso",
+      "ElasticNet",
+      "Ridge",
+      "BayesianRidge",
+      "GPR_Matern"
+    ],
+    "TT_OB_LB": [
+      "AdaBoost",
+      "ExtraTrees",
+      "LightGBM",
+      "CatBoost",
+      "XGBoost"
+    ],
+    "WT_OB_LB": [
+      "GPR_Matern",
+      "Lasso",
+      "ElasticNet",
+      "BayesianRidge",
+      "Ridge"
+    ],
+    "TT_IB_LB": [
+      "Lasso",
+      "ElasticNet",
+      "Ridge",
+      "BayesianRidge",
+      "GPR_Matern"
+    ],
+    "WT_IB_LB": [
+      "Lasso",
+      "MLP",
+      "GPR_Matern",
+      "ElasticNet",
+      "Ridge"
+    ],
+    "TT_OB_DR": [
+      "CatBoost",
+      "RandomForest",
+      "XGBoost",
+      "LightGBM",
+      "KNN"
+    ],
+    "TT_IB_DR": [
+      "SVR_RBF",
+      "AdaBoost",
+      "ExtraTrees",
+      "CatBoost",
+      "KNN"
+    ],
+    "Uti_Cus_D": [
+      "GPR_Matern",
+      "GradientBoosting",
+      "XGBoost",
+      "CatBoost",
+      "ExtraTrees"
+    ],
+    "Uti_DAFM_D": [
+      "GPR_Matern",
+      "PolynomialReg_deg2",
+      "LightGBM",
+      "CatBoost",
+      "ElasticNet"
+    ],
+    "Uti_Cus_R": [
+      "ElasticNet",
+      "Lasso",
+      "Ridge",
+      "BayesianRidge",
+      "Baseline_OLS"
+    ],
+    "Uti_DAFM_R": [
+      "GPR_Matern",
+      "ElasticNet",
+      "Lasso",
+      "Ridge",
+      "BayesianRidge"
+    ]
+  }
+}

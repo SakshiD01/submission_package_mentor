@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings — NOLHC Supply Chain Simulator</title>
+  <link rel="stylesheet" href="styles/styles.css" />
+</head>
+<body class="settings-page-body">
+  <div id="settings-app" class="settings-app">
+    <header class="app-header settings-page-header">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="logo">SC</div>
+        <div>
+          <div class="app-title">Simulation settings</div>
+          <div class="app-subtitle">All parameters, ranges, and port context</div>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="index.html" class="header-link">← Simulator</a>
+      </nav>
+    </header>
+
+    <main class="settings-main">
+      <div id="settings-root" class="settings-root panel-scroll"></div>
+    </main>
+  </div>
+  <script type="module" src="settings-app.js"></script>
+</body>
+</html>

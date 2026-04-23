@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Avoid stale index.html when debugging (shell loads but cached app.js is broken). -->
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <title>NOLHC Supply Chain Simulator — Ireland Trade ML</title>
+
+  <!--
+    ═══════════════════════════════════════════════════════════
+    EXTERNAL LIBRARIES (loaded from CDN — no installation needed)
+    ═══════════════════════════════════════════════════════════
+    Leaflet = the interactive map
+  -->
+  <link  rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+  <!--
+    YOUR OWN STYLESHEET
+    All colours, spacing, fonts → edit styles/styles.css
+  -->
+  <link rel="stylesheet" href="styles/styles.css" />
+</head>
+
+<body>
+<script>
+(function () {
+  if (location.protocol === "file:") {
+    document.addEventListener("DOMContentLoaded", function () {
+      var d = document.createElement("div");
+      d.id = "nolhc-file-protocol-warn";
+      d.style.cssText =
+        "background:#422006;color:#ffedd5;border-bottom:1px solid #ea580c;padding:12px 18px;font:13px/1.5 system-ui,sans-serif;z-index:99999;position:relative";
+      d.innerHTML =
+        "<strong style=\"display:block;margin-bottom:6px\">Serve this UI over HTTP (ES modules do not load from file://)</strong>" +
+        "Opening <code>index.html</code> from disk usually leaves a blank page because browsers block module imports. Run from the repo:<br>" +
+        "<code style=\"display:inline-block;margin-top:8px;background:rgba(0,0,0,.25);padding:6px 10px;border-radius:6px\">cd experimenting_ml &amp;&amp; python run_ui_inference_api.py</code> " +
+        "then open <code>http://127.0.0.1:8000/UI/index.html</code>";
+      document.body.insertBefore(d, document.body.firstChild);
+    });
+  }
+})();
+</script>
+<!--
+  ═══════════════════════════════════════════════════════════
+  APP SHELL
+  This is just the skeleton. JavaScript fills in the content.
+  ═══════════════════════════════════════════════════════════
+-->
+<div id="app">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="app-header">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="logo">SC</div>
+      <div>
+        <div class="app-title">Supply Chain Simulator</div>
+        <div class="app-subtitle"> Truck Logistics — Ireland ↔ GB ↔ EU</div>
+      </div>
+    </div>
+
+    <div class="app-header-right">
+      <!-- Tab switcher: Results ↔ Indicators -->
+      <div class="tab-bar">
+        <a class="header-settings-btn" href="sample%20template%20for%20sim_ml_xai_llm_platform%20(1).html" title="ML, XAI, and scenario decision intelligence">Decision Intelligence</a>
+        <a class="tab-btn" href="settings.html">⚙ Advanced Editor</a>
+        <button type="button" class="tab-btn active" data-view="results">📊 Results</button>
+        <button type="button" class="tab-btn" data-view="indicators">📈 Indicators</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN BODY: left form + right content -->
+  <div class="app-body">
+
+    <!-- LEFT PANEL: Shipment input form -->
+    <aside class="left-panel">
+      <div class="panel-header">
+        <h2>Scenario Controls</h2>
+        <p>Select scenario family, level, then fine-tune sliders.</p>
+      </div>
+      <!-- Form fields are injected here by app.js -->
+      <div class="form-body" id="form-body"></div>
+      <!-- Run / Reset buttons -->
+      <div class="form-footer" id="form-footer"></div>
+    </aside>
+
+    <!-- RIGHT PANEL: Results or Indicators -->
+    <main class="right-panel">
+
+      <!--
+        Indicator filter bar — hidden when showing Results,
+        visible when showing Indicators tab.
+        app.js toggles visibility automatically.
+      -->
+      <div class="ind-filters" id="ind-filter-bar" style="display:none"></div>
+
+      <!-- Leaflet map host (shown after Run); id required for buildMap("results-map") -->
+      <div id="results-map-section" class="map-wrapper" style="display:none">
+        <div id="results-map" style="height: 280px; width: 100%"></div>
+      </div>
+
+      <!-- Content area — filled by renderResults() or renderIndicators() -->
+      <div class="panel-scroll" id="right-content"></div>
+
+    </main>
+  </div>
+
+  <!-- Chat shell; buildChatbot() injects header/messages/input -->
+  <div id="chat-panel" class="chat-panel" style="display: none"></div>
+
+</div><!-- end #app -->
+
+<!--
+  ═══════════════════════════════════════════════════════════
+  YOUR JAVASCRIPT (loaded as ES Modules)
+  The browser loads these in order:
+    data.js       → all raw numbers and constants
+    components.js → reusable UI building blocks
+    app.js     → wires everything together
+  ═══════════════════════════════════════════════════════════
+-->
+<script type="module" src="app.js?v=20260421"></script>
+<script>
+(function () {
+  var mod = document.querySelector('script[type="module"][src*="app.js"]');
+  if (mod) {
+    mod.addEventListener("error", function () {
+      var r = document.getElementById("right-content");
+      var f = document.getElementById("form-body");
+      var html =
+        '<div style="padding:16px 20px;margin:12px;border-radius:10px;border:1px solid rgba(248,113,113,.5);background:rgba(127,29,29,.35);color:#fecaca;font:14px/1.5 system-ui,sans-serif">' +
+        "<strong>Could not load app.js</strong><br />" +
+        "Hard-refresh: <kbd>Cmd+Shift+R</kbd> (Mac) or <kbd>Ctrl+Shift+R</kbd> (Windows). " +
+        "Ensure the server is run from <code>experimenting_ml</code>: <code>python run_ui_inference_api.py</code>" +
+        "</div>";
+      if (r) r.innerHTML = html;
+      if (f) f.innerHTML = html;
+    });
+  }
+  window.addEventListener("unhandledrejection", function (ev) {
+    var r = document.getElementById("right-content");
+    if (!r || r.querySelector(".app-boot-error")) return;
+    var msg = ev.reason && (ev.reason.message || String(ev.reason));
+    if (!msg) return;
+    r.innerHTML =
+      '<div class="app-boot-error" style="padding:16px;color:#fecaca;font:14px/1.5 system-ui,sans-serif">Unhandled: ' +
+      String(msg).replace(/</g, "&lt;") +
+      "</div>";
+  });
+})();
+</script>
+
+</body>
+</html>
