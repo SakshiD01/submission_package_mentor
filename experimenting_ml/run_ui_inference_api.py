@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import re
 import sys
 import xml.etree.ElementTree as ET
@@ -912,8 +913,8 @@ class Handler(SimpleHTTPRequestHandler):
 
 def main() -> None:
     p = argparse.ArgumentParser(description="Serve UI + strict model inference API")
-    p.add_argument("--port", type=int, default=8000)
-    p.add_argument("--host", default="127.0.0.1")
+    p.add_argument("--port", type=int, default=int(os.environ.get("PORT", "8000")))
+    p.add_argument("--host", default="0.0.0.0")
     args = p.parse_args()
 
     outputs = ROOT / "outputs"
