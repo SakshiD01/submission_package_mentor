@@ -798,6 +798,12 @@ class Handler(SimpleHTTPRequestHandler):
             # Client closed the connection (navigation, duplicate request, timeout).
             pass
 
+    def _redirect(self, location: str, status: int = 302) -> None:
+        self.send_response(status)
+        self.send_header("Location", location)
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
     def do_POST(self) -> None:  # noqa: N802
         p = self._path_only(self.path)
         if p not in ("/api/infer", "/api/predict"):
@@ -859,6 +865,9 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_GET(self) -> None:  # noqa: N802
         p = self._path_only(self.path)
+        if p == "/":
+            self._redirect("/UI/index.html")
+            return
         if p == "/api/health":
             self._json(
                 {
