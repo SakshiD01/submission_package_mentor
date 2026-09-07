@@ -1,0 +1,47 @@
+{
+  "TT_OB_Agri": {
+    "y_column": "Agri Products | Outbound | TT_OB_Agri",
+    "cv_selected_family": "ExtraTrees",
+    "cv_rmse_source_(CV_Best_Models_Per_Target.md)": 7.3009,
+    "gp_kernel_fitted": "1.26**2 * Matern(length_scale=6.79, nu=1.5) + WhiteKernel(noise_level=0.001)",
+    "in_sample_rmse": 0.0404875917432388,
+    "gp_5fold_cv_rmse_(ground_truth_surface_itself)": 22.42989928480295,
+    "y_range": [
+      2.5,
+      169.0
+    ],
+    "y_mean": 33.7046511627907,
+    "injected_noise_std": 1.095135,
+    "injected_noise_pct_of_range": 0.0065773873873873874
+  },
+  "TT_IB_LB": {
+    "y_column": "Routes | Landbridge | TT_IB_LB",
+    "cv_selected_family": "GPR_Matern",
+    "cv_rmse_source_(CV_Best_Models_Per_Target.md)": 21.4914,
+    "gp_kernel_fitted": "7.29**2 * Matern(length_scale=65.2, nu=1.5) + WhiteKernel(noise_level=0.0954)",
+    "in_sample_rmse": 10.426435669460508,
+    "gp_5fold_cv_rmse_(ground_truth_surface_itself)": 21.558328045910482,
+    "y_range": [
+      26.0,
+      230.0
+    ],
+    "y_mean": 73.13333333333334,
+    "injected_noise_std": 3.2237099999999996,
+    "injected_noise_pct_of_range": 0.015802499999999997
+  },
+  "Uti_DAFM_R": {
+    "y_column": "Staff Utilisation | Rooslare | Uti_DAFM_R",
+    "cv_selected_family": "GPR_Matern",
+    "cv_rmse_source_(CV_Best_Models_Per_Target.md)": 0.0104,
+    "gp_kernel_fitted": "9.32**2 * Matern(length_scale=84.8, nu=1.5) + WhiteKernel(noise_level=0.001)",
+    "in_sample_rmse": 0.0002336606668780066,
+    "gp_5fold_cv_rmse_(ground_truth_surface_itself)": 0.010925610725675258,
+    "y_range": [
+      0.07,
+      0.32
+    ],
+    "y_mean": 0.155968992248062,
+    "injected_noise_std": 0.00156,
+    "injected_noise_pct_of_range": 0.00624
+  }
+}

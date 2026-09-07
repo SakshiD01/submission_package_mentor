@@ -15,9 +15,9 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import os
 import re
 import sys
+import urllib.parse
 import xml.etree.ElementTree as ET
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -61,6 +61,22 @@ from training_columns import (  # noqa: E402
     output_unit,
 )
 
+# ── Operator console + live reliability (technical report §13) ──────────
+# Optional: the UI must still serve if the loop package can't import.
+try:
+    from loop import operator_api, pending_queue  # noqa: E402
+    from loop.dataset_store import load_current_training_data  # noqa: E402
+    from loop.novelty import NoveltyScorer  # noqa: E402
+
+    _LOOP_OK = True
+except Exception as _loop_err:  # noqa: BLE001
+    operator_api = None  # type: ignore
+    pending_queue = None  # type: ignore
+    NoveltyScorer = None  # type: ignore
+    load_current_training_data = None  # type: ignore
+    _LOOP_OK = False
+    print(f"[operator console] disabled — loop package failed to import: {_loop_err}")
+
 
 def _safe_filename(s: str) -> str:
     return re.sub(r"[^a-zA-Z0-9_.-]+", "_", s)
@@ -75,6 +91,7 @@ def _build_simulator_payload(preds: Dict[str, Any]) -> Dict[str, Any]:
             y = float(row.get("prediction", 0))
         except (TypeError, ValueError):
             continue
+        iv = row.get("interval", {}) or {}
         out[slug] = {
             "value": y,
             "unit": output_unit(str(target)),
@@ -82,6 +99,13 @@ def _build_simulator_payload(preds: Dict[str, Any]) -> Dict[str, Any]:
             "r2": None,
             "registered_as": str(row.get("model", "")),
             "mae": 0.0,
+            "interval": {
+                "lower": iv.get("lower"),
+                "upper": iv.get("upper"),
+                "width": iv.get("width"),
+            },
+            "coverage_level": row.get("coverage_level"),
+            "empirical_coverage": row.get("empirical_coverage"),
         }
     return out
 
@@ -351,8 +375,6 @@ class InferenceEngine:
         )
         self.conformal = _load_json(outputs_dir / "conformal_results.json")
         self.scaler = joblib.load(self.trained_dir / "scaler.joblib")
-        # Keep estimators in memory: avoids repeated disk deserialization per request.
-        self._model_cache: Dict[Tuple[str, str], Any] = {}
         X, _ = load_xy()
         self.base = X[TRAINING_COLUMN_ORDER].mean(axis=0).astype(float).to_dict()
         self.scenario_mapping = _parse_xlsx_scenario_mapping(
@@ -390,15 +412,39 @@ class InferenceEngine:
         )
         self.feature_defaults_by_scenario: Dict[str, Dict[str, Dict[str, float]]] = {}
 
-    def _get_estimator(self, target: str, model: str) -> Any:
-        key = (target, model)
-        est = self._model_cache.get(key)
-        if est is not None:
-            return est
-        tdir = self.trained_dir / _safe_filename(target)
-        est = joblib.load(tdir / f"{_safe_filename(model)}.joblib")
-        self._model_cache[key] = est
-        return est
+        # ── Live novelty scorer (technical report §13.3) ──────────────
+        # Fit an IsolationForest on the CURRENT training hull (129 + every
+        # ingested round) so /api/infer can flag scenarios that sit outside
+        # anything the surrogate has seen. Same NoveltyScorer the batch loop
+        # uses (loop/novelty.py) — one fit at startup, cheap to score.
+        self.novelty_scorer = None
+        self.novelty_threshold = 0.0
+        self.novelty_n_train = 0
+        if _LOOP_OK:
+            try:
+                Xc, _Yc = load_current_training_data()
+                Xc = Xc[TRAINING_COLUMN_ORDER].to_numpy(dtype=float)
+                self.novelty_scorer = NoveltyScorer().fit(Xc)
+                train_scores = self.novelty_scorer.score(Xc)
+                self.novelty_threshold = float(np.quantile(train_scores, 0.90))
+                self.novelty_n_train = int(len(Xc))
+            except Exception as e:  # noqa: BLE001
+                print(f"[operator console] novelty scorer unavailable: {e}")
+
+    def score_novelty(self, xmap: Dict[str, float]) -> Dict[str, Any]:
+        """How far this input vector sits outside the training hull.
+        {score, threshold, is_novel} — higher score = more out-of-distribution."""
+        if self.novelty_scorer is None:
+            return {"available": False, "score": None, "threshold": None, "is_novel": False}
+        row = np.array([[float(xmap[c]) for c in TRAINING_COLUMN_ORDER]], dtype=float)
+        s = float(self.novelty_scorer.score(row)[0])
+        return {
+            "available": True,
+            "score": s,
+            "threshold": self.novelty_threshold,
+            "is_novel": bool(s > self.novelty_threshold),
+            "n_train": self.novelty_n_train,
+        }
 
     def compute_feature_defaults(
         self, level_inputs_map: Dict[str, Dict[str, Dict[str, float]]]
@@ -520,7 +566,8 @@ class InferenceEngine:
         return x
 
     def _predict_target(self, target: str, model: str, x_row: np.ndarray, x_scaled: np.ndarray) -> float:
-        est = self._get_estimator(target, model)
+        tdir = self.trained_dir / _safe_filename(target)
+        est = joblib.load(tdir / f"{_safe_filename(model)}.joblib")
         if model in NEEDS_SCALING:
             return float(est.predict(x_scaled)[0])
         return float(est.predict(x_row)[0])
@@ -669,6 +716,50 @@ class InferenceEngine:
                 trend[target]["upper"].append(float(_clip_target_output(target, y + q)))
         return trend
 
+    # Interval half-width beyond this fraction of the predicted value marks a
+    # KPI "low confidence" for the live screen (technical report §13.3). This
+    # is a lightweight live check; the batch loop's PROVEN_6 methodology is
+    # the rigorous per-family version (§13.4 / spec.md §5.1).
+    _REL_WIDTH_FLAG = 0.5
+
+    def _reliability(
+        self, xmap: Dict[str, float], preds: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        novelty = self.score_novelty(xmap)
+        per_kpi: Dict[str, Any] = {}
+        low_kpis: List[str] = []
+        for target, row in preds.items():
+            y = abs(float(row.get("prediction", 0.0)))
+            half = float(row.get("interval", {}).get("width", 0.0)) / 2.0
+            denom = y if y > 1e-9 else 1.0
+            rel = half / denom
+            flagged = rel > self._REL_WIDTH_FLAG
+            per_kpi[col_to_slug(str(target))] = {
+                "rel_half_width": rel,
+                "coverage_level": float(row.get("coverage_level", 0.9)),
+                "empirical_coverage": float(row.get("empirical_coverage", 0.0)),
+                "low_confidence": flagged,
+            }
+            if flagged:
+                low_kpis.append(col_to_slug(str(target)))
+        decision = "verify" if (novelty.get("is_novel") or low_kpis) else "accept"
+        if novelty.get("is_novel") and low_kpis:
+            reason = "input outside training hull, and wide interval on: " + ", ".join(low_kpis)
+        elif novelty.get("is_novel"):
+            reason = "input sits outside the 35-factor training hull"
+        elif low_kpis:
+            reason = "wide prediction interval on: " + ", ".join(low_kpis)
+        else:
+            reason = "within calibrated operating range"
+        return {
+            "available": bool(_LOOP_OK and self.novelty_scorer is not None),
+            "decision": decision,
+            "reason": reason,
+            "novelty": novelty,
+            "per_kpi": per_kpi,
+            "low_confidence_kpis": low_kpis,
+        }
+
     def infer(
         self,
         family: str,
@@ -743,6 +834,9 @@ class InferenceEngine:
         trend: Dict[str, Any] = {}
         if include_trend:
             trend = self._trend_12m(x0map, xmap)
+
+        reliability = self._reliability(xmap, preds)
+
         out: Dict[str, Any] = {
             "vector": xmap,
             "predictions": preds,
@@ -751,7 +845,30 @@ class InferenceEngine:
             "excel_column": excel_col,
             "dynamic_params": self.dynamic_params_meta,
             "use_direct_model_features": use_direct,
+            "reliability": reliability,
         }
+
+        # Reactive capture (technical report §13.4): a user-driven scenario
+        # that the trust screen would send back to AnyLogic is logged for the
+        # operator's pending-review queue. Preset/baseline page loads are not.
+        if (
+            _LOOP_OK
+            and pending_queue is not None
+            and reliability.get("decision") == "verify"
+            and (use_direct or scenario_level not in ("baseline", "as_is"))
+        ):
+            try:
+                pending_queue.add(
+                    {c: float(xmap[c]) for c in TRAINING_COLUMN_ORDER},
+                    reason=reliability.get("reason", "low trust"),
+                    trust={
+                        "novelty": reliability.get("novelty"),
+                        "low_kpis": reliability.get("low_confidence_kpis", []),
+                    },
+                    source="live_query",
+                )
+            except Exception:  # noqa: BLE001
+                pass
         if include_target_corr:
             ht = heatmap_targets if heatmap_targets else list(OUTPUT_COLUMN_ORDER)
             out["target_correlation"] = self._monte_carlo_target_correlation(
@@ -809,14 +926,52 @@ class Handler(SimpleHTTPRequestHandler):
             # Client closed the connection (navigation, duplicate request, timeout).
             pass
 
-    def _redirect(self, location: str, status: int = 302) -> None:
-        self.send_response(status)
-        self.send_header("Location", location)
-        self.send_header("Content-Length", "0")
-        self.end_headers()
+    def _read_json_body(self) -> Dict[str, Any]:
+        n = int(self.headers.get("Content-Length", "0"))
+        raw = self.rfile.read(n) if n else b""
+        return json.loads(raw.decode("utf-8")) if raw else {}
+
+    def _handle_operator_post(self, path: str) -> bool:
+        """Operator-console write routes (technical report §13). Returns True
+        if the path was an operator route (handled), False otherwise."""
+        if not path.startswith("/api/operator/"):
+            return False
+        if not _LOOP_OK or operator_api is None:
+            self._json({"ok": False, "error": "operator console unavailable (loop package failed to import)"}, status=503)
+            return True
+        try:
+            body = self._read_json_body()
+            if path == "/api/operator/round/export":
+                self._json(operator_api.export_round(
+                    kpi_scope=str(body.get("kpi_scope", "demo4")),
+                    n_candidates=int(body.get("n_candidates", 20)),
+                    quantile=float(body.get("quantile", 0.9)),
+                    max_batch_size=int(body.get("max_batch_size", 10)),
+                    n_replications=int(body.get("n_replications", 5)),
+                    seed=(None if body.get("seed") in (None, "") else int(body["seed"])),
+                    candidate_ids=body.get("candidate_ids") or None,
+                ))
+            elif path == "/api/operator/round/ingest":
+                self._json(operator_api.ingest_round(
+                    str(body["round_id"]),
+                    results_csv_text=body.get("results_csv"),
+                    results_content_b64=body.get("results_content_b64"),
+                    filename=body.get("filename"),
+                ))
+            elif path == "/api/operator/pending/dismiss":
+                self._json(operator_api.pending_dismiss(str(body["entry_id"])))
+            else:
+                self._json({"ok": False, "error": "not_found"}, status=404)
+        except (BrokenPipeError, ConnectionResetError, OSError):
+            pass
+        except Exception as e:  # noqa: BLE001
+            self._json({"ok": False, "error": str(e)}, status=400)
+        return True
 
     def do_POST(self) -> None:  # noqa: N802
         p = self._path_only(self.path)
+        if self._handle_operator_post(p):
+            return
         if p not in ("/api/infer", "/api/predict"):
             self._json({"error": "not_found"}, status=404)
             return
@@ -862,6 +1017,7 @@ class Handler(SimpleHTTPRequestHandler):
                         "excel_column": out.get("excel_column"),
                         "use_direct_model_features": out.get("use_direct_model_features"),
                         "dynamic_params": out.get("dynamic_params"),
+                        "reliability": out.get("reliability"),
                     }
                 )
             else:
@@ -874,10 +1030,43 @@ class Handler(SimpleHTTPRequestHandler):
             except (BrokenPipeError, ConnectionResetError, OSError):
                 pass
 
+    def _handle_operator_get(self, path: str) -> bool:
+        if not path.startswith("/api/operator/"):
+            return False
+        if not _LOOP_OK or operator_api is None:
+            self._json({"ok": False, "error": "operator console unavailable (loop package failed to import)"}, status=503)
+            return True
+        try:
+            if path == "/api/operator/status":
+                self._json({"ok": True, **operator_api.dataset_status()})
+            elif path == "/api/operator/pending":
+                self._json({"ok": True, **operator_api.pending_list()})
+            elif path == "/api/operator/recalibrate":
+                self._json({"ok": True, **operator_api.recalibration_report()})
+            elif path == "/api/operator/worklist":
+                qs = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+                rid = (qs.get("round_id") or [""])[0]
+                data = operator_api.worklist_bytes(rid)
+                if data is None:
+                    self._json({"ok": False, "error": "no worklist for that round"}, status=404)
+                else:
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    self.send_header("Content-Disposition", f'attachment; filename="{rid}_worklist.xlsx"')
+                    self.send_header("Content-Length", str(len(data)))
+                    self.end_headers()
+                    self.wfile.write(data)
+            else:
+                self._json({"ok": False, "error": "not_found"}, status=404)
+        except (BrokenPipeError, ConnectionResetError, OSError):
+            pass
+        except Exception as e:  # noqa: BLE001
+            self._json({"ok": False, "error": str(e)}, status=400)
+        return True
+
     def do_GET(self) -> None:  # noqa: N802
         p = self._path_only(self.path)
-        if p == "/":
-            self._redirect("/UI/index.html")
+        if self._handle_operator_get(p):
             return
         if p == "/api/health":
             self._json(
@@ -886,6 +1075,7 @@ class Handler(SimpleHTTPRequestHandler):
                     "backend_connected": True,
                     "model_loaded": True,
                     "n_targets": len(self.engine.selected_models),
+                    "operator_console": bool(_LOOP_OK),
                 }
             )
             return
@@ -933,8 +1123,8 @@ class Handler(SimpleHTTPRequestHandler):
 
 def main() -> None:
     p = argparse.ArgumentParser(description="Serve UI + strict model inference API")
-    p.add_argument("--port", type=int, default=int(os.environ.get("PORT", "8000")))
-    p.add_argument("--host", default="0.0.0.0")
+    p.add_argument("--port", type=int, default=8000)
+    p.add_argument("--host", default="127.0.0.1")
     args = p.parse_args()
 
     outputs = ROOT / "outputs"

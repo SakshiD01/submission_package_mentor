@@ -62,6 +62,8 @@ const state = {
   activeView: "results",
   modelAvgR2: null,
   modelVersion: "v1",
+  /** `/api/predict` `reliability` block: novelty + per-KPI interval width + accept/verify decision (technical report §13.3). */
+  reliability: null,
 };
 
 let mapInstance = null;
@@ -1210,7 +1212,7 @@ async function runPrediction() {
       light: true,
       include_trend: false,
       include_target_corr: false,
-      mc_samples: 64,
+      mc_samples: 128,
     };
     const stackRes = await fetch(`${base}/api/predict`, {
       method: "POST",
@@ -1228,6 +1230,8 @@ async function runPrediction() {
           ? stackData.simulator
           : normalizeInferToSimulatorResult(stackData.predictions || {});
       state.lastResult = clipSimulatorResult(rawSim);
+      state.reliability =
+        stackData.reliability && typeof stackData.reliability === "object" ? stackData.reliability : null;
       state.hasRun = true;
       return;
     }
@@ -1284,6 +1288,46 @@ function themeForStaffUtil(v) {
   return "violet";
 }
 
+/** Per-KPI conformal interval + reliability chip for a card (technical report §13.3). */
+function uncertaintyForCard(slug, pr) {
+  const iv = pr && pr.interval;
+  if (!iv || iv.lower == null || iv.upper == null) return null;
+  const meta = KPI_META[slug];
+  const frac = meta?.fraction || pr.unit === "fraction";
+  const fmt = (x) => (frac ? `${(Number(x) * 100).toFixed(1)}%` : Number(x).toFixed(1));
+  const cov = pr.coverage_level != null ? Math.round(Number(pr.coverage_level) * 100) : 90;
+  const rel = state.reliability?.per_kpi?.[slug];
+  return {
+    intervalText: `${fmt(iv.lower)} – ${fmt(iv.upper)}`,
+    coverageText: `${cov}% interval`,
+    lowConfidence: Boolean(rel?.low_confidence),
+  };
+}
+
+/** Trust strip shown above the KPI grid: overall accept/verify + novelty (technical report §13.3). */
+function reliabilityStripEl() {
+  const r = state.reliability;
+  if (!r || r.available === false) return null;
+  const verify = r.decision === "verify";
+  const strip = el("div", { class: `reliability-strip ${verify ? "reliability-strip--verify" : "reliability-strip--ok"}` });
+  strip.append(
+    el("div", { class: "reliability-strip-head" },
+      el("span", { class: "reliability-strip-icon" }, verify ? "⚠" : "✓"),
+      el("span", { class: "reliability-strip-title" },
+        verify ? "Verify this scenario against AnyLogic" : "Predictions within the calibrated operating range"),
+    ),
+  );
+  if (r.reason) strip.append(el("div", { class: "reliability-strip-reason" }, r.reason));
+  const nov = r.novelty || {};
+  if (nov.available) {
+    const novTxt = nov.is_novel
+      ? "Input sits outside the training hull (novelty above the calibrated threshold)"
+      : `Input inside the training hull (novelty ${Number(nov.score).toFixed(3)} vs threshold ${Number(nov.threshold).toFixed(3)})`;
+    strip.append(el("div", { class: "reliability-strip-novelty" }, `🎯 ${novTxt}`));
+  }
+  return strip;
+}
+
 function renderResults() {
   const right = document.getElementById("right-content");
   if (!right) return;
@@ -1331,6 +1375,8 @@ function renderResults() {
 
   const badge = confidenceBadgeEl();
   if (badge) right.append(badge);
+  const relStrip = reliabilityStripEl();
+  if (relStrip) right.append(relStrip);
   right.append(realismPanel());
 
   const journey = renderNolhcJourneyTimeline(state.lastResult);
@@ -1364,6 +1410,7 @@ function renderResults() {
           theme,
           delay: delay * 0.05,
           tooltip: meta.tooltip,
+          uncertainty: uncertaintyForCard(slug, pr),
         }),
       );
       delay += 1;

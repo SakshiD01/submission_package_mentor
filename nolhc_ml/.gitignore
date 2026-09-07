@@ -12,6 +12,8 @@ build/
 .idea/
 .vscode/
 .DS_Store
-data/processed/*.parquet
-models/v*/*
-!models/v*/.gitkeep
+
+# Handover: the v1 registry, trained models and processed dataset ARE tracked
+# (see REPRODUCE.md). Only future scratch versions and lock files are ignored.
+models/v[2-9]*/
+data/processed/*.tmp.parquet

@@ -1,0 +1,47 @@
+{
+  "TT_OB_Agri": {
+    "raw_key": "TT_OB_Agri",
+    "cv_selected_family": "ExtraTrees",
+    "cv_rmse_source": 7.3009,
+    "gp_kernel_fitted": "1.26**2 * Matern(length_scale=6.79, nu=1.5) + WhiteKernel(noise_level=2.61e-07)",
+    "gp_log_marginal_likelihood": -159.01481703042083,
+    "in_sample_rmse": 1.0586611935148848e-05,
+    "y_range": [
+      2.5,
+      169.0
+    ],
+    "y_mean": 33.7046511627907,
+    "injected_noise_std": 1.095135,
+    "injected_noise_pct_of_range": 0.0065773873873873874
+  },
+  "TT_IB_LB": {
+    "raw_key": "TT_IB_LB",
+    "cv_selected_family": "GPR_Matern",
+    "cv_rmse_source": 21.4914,
+    "gp_kernel_fitted": "7.29**2 * Matern(length_scale=65.2, nu=1.5) + WhiteKernel(noise_level=0.0954)",
+    "gp_log_marginal_likelihood": -108.39911011159818,
+    "in_sample_rmse": 10.426433750178145,
+    "y_range": [
+      26.0,
+      230.0
+    ],
+    "y_mean": 73.13333333333334,
+    "injected_noise_std": 3.2237099999999996,
+    "injected_noise_pct_of_range": 0.015802499999999997
+  },
+  "Uti_DAFM_R": {
+    "raw_key": "Uti_DAFM_R",
+    "cv_selected_family": "GPR_Matern",
+    "cv_rmse_source": 0.0104,
+    "gp_kernel_fitted": "9.09**2 * Matern(length_scale=82.6, nu=1.5) + WhiteKernel(noise_level=1.13e-08)",
+    "gp_log_marginal_likelihood": -40.17544190288923,
+    "in_sample_rmse": 2.703144068712311e-09,
+    "y_range": [
+      0.07,
+      0.32
+    ],
+    "y_mean": 0.155968992248062,
+    "injected_noise_std": 0.00156,
+    "injected_noise_pct_of_range": 0.00624
+  }
+}

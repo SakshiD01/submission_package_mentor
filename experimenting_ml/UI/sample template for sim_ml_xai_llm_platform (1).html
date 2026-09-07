@@ -554,7 +554,7 @@ function scheduleInferFast(){
       const ts=new Date().toLocaleTimeString();
       setInferStatus(true,`Inference: connected · ${ts} · charts synced`);
     });
-  },1200);
+  },850);
 }
 
 function prettyInputName(key){
@@ -1101,7 +1101,7 @@ async function runInference(opts){
       light:!!fast,
       include_trend:!fast,
       include_target_corr:!fast,
-      mc_samples:fast?24:72,
+      mc_samples:fast?48:180,
       heatmap_targets:fast?heatmap_targets.slice(0,8):heatmap_targets
     };
     if(usesModelFeatureSliders()&&Object.keys(modelFeatureValues).length){
@@ -1200,12 +1200,8 @@ function generatePersonaReply(question){
   applyLevelInputs();
   initDynamicSliderDefaults();
   renderHeatmapToggles();
-  // Render quickly first, then hydrate expensive charts after initial paint.
-  await runInference({fast:true});
-  render();
-  setTimeout(()=>{
-    runInferenceAndRender().catch(()=>{});
-  },700);
+  await runInference();
+render();
 })();
 </script>
 </body>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Operator console — NOLHC ML Engine</title>
+  <link rel="stylesheet" href="styles/styles.css" />
+  <link rel="stylesheet" href="styles/operator.css" />
+</head>
+<body class="settings-page-body">
+  <div class="settings-app">
+    <header class="app-header settings-page-header">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="logo">SC</div>
+        <div>
+          <div class="app-title">Operator console</div>
+          <div class="app-subtitle">Dataset growth &amp; uncertainty monitoring · backend operators only</div>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="settings.html" class="header-link">← Settings</a>
+        <a href="index.html" class="header-link">Simulator</a>
+      </nav>
+    </header>
+
+    <main class="settings-main">
+      <div id="op-root" class="op-root panel-scroll">
+        <div class="op-note">
+          This is an <strong>additional</strong> surface enabled by the uncertainty / self-extension work.
+          It does not change the simulator. It runs the batch-sequential loop
+          (<code>propose → score → flag → export → ingest → retrain</code>) as a screen instead of a command line.
+        </div>
+
+        <section class="op-card" id="op-status">
+          <h2>1 · Dataset status</h2>
+          <div class="op-status-body">Loading…</div>
+        </section>
+
+        <section class="op-card" id="op-pending">
+          <h2>2 · Pending review <span class="op-count" id="op-pending-count"></span></h2>
+          <p class="op-hint">Live scenarios the trust screen flagged as "verify against AnyLogic". Select the ones worth a real run, or dismiss.</p>
+          <div class="op-pending-body">Loading…</div>
+        </section>
+
+        <section class="op-card" id="op-build">
+          <h2>3 · Build a round</h2>
+          <p class="op-hint">Propose candidates, score them, flag the untrustworthy ones, and export the AnyLogic worklist.</p>
+          <div class="op-form">
+            <label>KPI scope
+              <span class="op-scope-fixed" id="op-scope" data-value="all20">all20 (every registered KPI)</span>
+            </label>
+            <p class="op-hint">Fixed to all20 — same generic per-KPI method routing as DEMO_4, just covering every registered KPI instead of 4, so every round grows the whole dataset rather than a narrow slice of it. PROVEN_6 (6 KPIs, mentor-benchmarked methods) is a separate, one-off exercise, not a repeatable scope choice — its one real batch is already exported and pending ingest; it isn't generated from this button.</p>
+            <label>Candidates <input id="op-ncand" type="number" value="20" min="2" max="200" /></label>
+            <label>Threshold quantile <input id="op-quantile" type="number" value="0.9" step="0.01" min="0.5" max="0.99" /></label>
+            <label>Max batch size <input id="op-batch" type="number" value="10" min="1" max="50" /></label>
+            <label>Replications <input id="op-reps" type="number" value="5" min="1" max="20" /></label>
+            <label>Seed <input id="op-seed" type="number" value="42" /></label>
+            <label class="op-check"><input id="op-usepending" type="checkbox" /> use selected pending points instead of random</label>
+          </div>
+          <button class="op-btn op-btn--primary" id="op-build-btn">Generate worklist</button>
+          <div class="op-build-result"></div>
+        </section>
+
+        <section class="op-card" id="op-ingest">
+          <h2>4 · Ingest results</h2>
+          <p class="op-hint">Paste CSV text, or upload the real AnyLogic Cloud results file as exported (<code>.csv</code> or <code>.xlsx</code> — the actual export format for a real run) — <code>run_id, replication, seed, &lt;KPI columns&gt;</code>. Validation runs before anything is trusted.</p>
+          <div class="op-form">
+            <label>Round <select id="op-ingest-round"><option value="">—</option></select></label>
+            <label class="op-file">Results file <input id="op-ingest-file" type="file" accept=".csv,text/csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xls,application/vnd.ms-excel" /></label>
+          </div>
+          <textarea id="op-ingest-text" rows="6" placeholder="run_id,replication,seed,TT_OB_Agri,Uti_DAFM_R&#10;proposed_0001,1,1001,32.4,0.153&#10;…"></textarea>
+          <button class="op-btn op-btn--primary" id="op-ingest-btn">Validate &amp; ingest</button>
+          <div class="op-ingest-result"></div>
+        </section>
+
+        <section class="op-card" id="op-recal">
+          <h2>5 · Recalibration check</h2>
+          <p class="op-hint">Is each PROVEN_6 KPI's fixed UQ method still the closest to 90% coverage on the grown data? Read-only — a changed winner is flagged for mentor sign-off, never auto-applied.</p>
+          <button class="op-btn" id="op-recal-btn">Run check</button>
+          <div class="op-recal-result"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="operator-app.js"></script>
+</body>
+</html>

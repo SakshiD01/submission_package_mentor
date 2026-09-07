@@ -1465,3 +1465,32 @@ select.shap-kpi-select {
   .tab-bar      { display: none; }
   .app-header-right { width: 100%; justify-content: space-between; }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Uncertainty visualisation — KPI cards + trust strip
+   (technical report §13.3)
+   ───────────────────────────────────────────────────────────── */
+.kpi-interval {
+  margin-top: 6px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  font-size: 10px; color: var(--slate-400);
+}
+.kpi-interval-range { font-variant-numeric: tabular-nums; color: var(--slate-300); }
+.kpi-interval-cov   { color: var(--slate-500); }
+.kpi-conf-chip {
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+  padding: 1px 6px; border-radius: 999px; border: 1px solid;
+}
+.kpi-conf-chip--low { color: #fcd34d; border-color: rgba(252,211,77,0.5); background: rgba(252,211,77,0.10); }
+.kpi-card--low-confidence { border-color: rgba(252,211,77,0.55) !important; }
+
+.reliability-strip {
+  border-radius: var(--radius-md); border: 1px solid; padding: 12px 14px;
+  margin-bottom: 14px; animation: fadeUp 0.3s ease both;
+}
+.reliability-strip--ok     { border-color: rgba(45,212,191,0.4); background: rgba(13,148,136,0.10); }
+.reliability-strip--verify { border-color: rgba(252,211,77,0.55); background: rgba(252,211,77,0.10); }
+.reliability-strip-head    { display: flex; align-items: center; gap: 8px; }
+.reliability-strip-icon    { font-size: 14px; }
+.reliability-strip-title   { font-size: 12px; font-weight: 700; color: var(--slate-200); }
+.reliability-strip-reason  { font-size: 11px; color: var(--slate-400); margin-top: 4px; }
+.reliability-strip-novelty { font-size: 10px; color: var(--slate-500); margin-top: 6px; }

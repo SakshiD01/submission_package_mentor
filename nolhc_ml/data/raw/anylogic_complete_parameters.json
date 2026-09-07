@@ -1,0 +1,808 @@
+{
+  "source": "docs/Diff between complete and NOLHC parameters.xlsx, sheet 'Complete Parameters' (same content as experimenting_ml/UI/'Scenario Mapping product category ALStudents.xlsx', sheet 'Input Parameters & Sources')",
+  "extracted": "2026-08-25",
+  "note": "AS-IS values are the AnyLogic model's current/baseline setting for each parameter. This is the full parameter list (160 rows) -- it is NOT yet partitioned into the 35 NOLHC-varying vs ~122 fixed subsets; see spec.md section 5, DES access / dimensionality rows for the open confirmation needed before this partition is treated as authoritative.",
+  "known_data_quality_issue": "NumTractorR / NumSecurityOfficerR descriptions appear swapped relative to the Dublin-side NumTractorD / NumSecurityOfficerD pattern -- flagged for mentor confirmation, not silently corrected here.",
+  "parameters": [
+    {
+      "name": "VolAllPImUK",
+      "description": "Import Volumes for all products from GB to IRE (tonnes)",
+      "as_is_value": 5951651
+    },
+    {
+      "name": "VolAllPExUK",
+      "description": "Export Volumes for all products from IRE to GB (tonnes)",
+      "as_is_value": 5087045
+    },
+    {
+      "name": "VolAgriImUK",
+      "description": "Import Volumes for Agri-food products from GB to IRE (tonnes)",
+      "as_is_value": 319349
+    },
+    {
+      "name": "VolAgriExUK",
+      "description": "Export Volumes for Agri-food products from IRE to GB (tonnes)",
+      "as_is_value": 712955
+    },
+    {
+      "name": "VolAllPImEULB",
+      "description": "Import Volumes for all products from EU to IRE through landbridge (tonnes)",
+      "as_is_value": 1010286
+    },
+    {
+      "name": "VolAllPExEULB",
+      "description": "Export Volumes for all products from IRE to EU through landbridge (tonnes)",
+      "as_is_value": 103633
+    },
+    {
+      "name": "VolAgriImEULB",
+      "description": "Import Volumes for Agri-food products from EU to IRE through landbridge (tonnes)",
+      "as_is_value": 235713
+    },
+    {
+      "name": "VolAgriExEULB",
+      "description": "Export Volumes for Agri-food products from IRE to EU through landbridge (tonnes)",
+      "as_is_value": 697367
+    },
+    {
+      "name": "VolAllPImViaChe",
+      "description": "Import Volumes for all products from EU (Cherbourg) to IRE through Direct Route (tonnes)",
+      "as_is_value": 273952
+    },
+    {
+      "name": "VolAllPExViaChe",
+      "description": "Export Volumes for all products from IRE to EU (Cherbourg) through Direct Route (tonnes)",
+      "as_is_value": 194249
+    },
+    {
+      "name": "VolAgriImViaChe",
+      "description": "Import Volumes for Agri-food products from EU (Cherbourg) to IRE through Direct Route (tonnes)",
+      "as_is_value": 26048
+    },
+    {
+      "name": "VolAgriExViaChe",
+      "description": "Export Volumes for Agri-food products from IRE to EU (Cherbourg) through Direct Route (tonnes)",
+      "as_is_value": 111751
+    },
+    {
+      "name": "VolAllPImViaRott",
+      "description": "Import Volumes for all products from EU (Rotterdam) to IRE through Direct Route (tonnes)",
+      "as_is_value": 678490
+    },
+    {
+      "name": "VolAllPExViaRott",
+      "description": "Export Volumes for all products from IRE to EU (Rotterdam) through Direct Route (tonnes)",
+      "as_is_value": 209
+    },
+    {
+      "name": "VolAgriImViaRott",
+      "description": "Import Volumes for Agri-food products from EU (Rotterdam) to IRE through Direct Route (tonnes)",
+      "as_is_value": 15799
+    },
+    {
+      "name": "VolAgriExViaRott",
+      "description": "Export Volumes for Agri-food products from IRE to EU (Rotterdam) through Direct Route (tonnes)",
+      "as_is_value": 249791
+    },
+    {
+      "name": "VolAllPImViaZee",
+      "description": "Import Volumes for all products from EU (Zeebrugge) to IRE through Direct Route (tonnes)",
+      "as_is_value": 731781
+    },
+    {
+      "name": "VolAllPExViaZee",
+      "description": "Export Volumes for all products from IRE to EU (Zeebrugge) through Direct Route (tonnes)",
+      "as_is_value": 236606
+    },
+    {
+      "name": "VolAgriImViaZee",
+      "description": "Import Volumes for Agri-food products from EU (Zeebrugge) to IRE through Direct Route (tonnes)",
+      "as_is_value": 10219
+    },
+    {
+      "name": "VolAgriExViaZee",
+      "description": "Export Volumes for Agri-food products from IRE to EU (Zeebrugge) through Direct Route (tonnes)",
+      "as_is_value": 50394
+    },
+    {
+      "name": "VolAllPImViaBil",
+      "description": "Import Volumes for all products from EU (Bilbao) to IRE through Direct Route (tonnes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "VolAllPExViaBil",
+      "description": "Export Volumes for all products from IRE to EU (Bilbao) through Direct Route (tonnes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "VolAgriImViaBil",
+      "description": "Import Volumes for Agri-food products from EU (Bilbao) to IRE through Direct Route (tonnes)",
+      "as_is_value": 10256
+    },
+    {
+      "name": "VolAgriExViaBil",
+      "description": "Export Volumes for Agri-food products from IRE to EU (Bilbao) through Direct Route (tonnes)",
+      "as_is_value": 23826
+    },
+    {
+      "name": "VolAllPImUKEU",
+      "description": "Import Volumes from the EU-26 to UK (tonnes)",
+      "as_is_value": 7551000
+    },
+    {
+      "name": "VolAllPExUKEU",
+      "description": "Export Volumes from the UK to the EU-26 (tonnes)",
+      "as_is_value": 10853000
+    },
+    {
+      "name": "PerGreenTrucksAPExIR",
+      "description": "Percentage of outbound trucks directed to green route at Irish Ports (%)",
+      "as_is_value": 1
+    },
+    {
+      "name": "DocChkTimeAPExIR",
+      "description": "Timing of documentary and sealed identity checks on outbound trucks at Irish ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerFullIdnChkAPExIR",
+      "description": "Percentage of outbound trucks need full identity checks (orange routed) at Irish Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "IdnChkTimeAPExIR",
+      "description": "Timing of full identity checks on outbound trucks at Irish ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerGreenTrucksAgriExIR",
+      "description": "Percentage of outbound Agri-food trucks directed to green route at Irish Ports (%)",
+      "as_is_value": 1
+    },
+    {
+      "name": "DocChkTimeAgriExIR",
+      "description": "Timing of documentary and sealed identity checks on Agri-food outbound trucks at Irish ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerFullIdnChkAgriExIR",
+      "description": "Percentage of Agri-food outbound trucks need full identity checks (orange routed) at Irish Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "IdnChkTimeAgriExIR",
+      "description": "Timing of full identity checks on Agri-food outbound trucks at Irish ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerGreenTrucksCatExIR",
+      "description": "Percentage of product categpry (e.g. Meat) outbound trucks directed to green route at Irish Ports (%)",
+      "as_is_value": 1
+    },
+    {
+      "name": "DocChkTimeCatExIR",
+      "description": "Timing of documentary and sealed identity checks on product categpry (e.g. Meat) outbound trucks at Irish ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerFullIdnChkCatExIR",
+      "description": "Percentage of product categpry (e.g. Meat) outbound trucks need full identity checks (orange routed) at Irish Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "IdnChkTimeCatExIR",
+      "description": "Timing of full identity checks on product categpry (e.g. Meat) outbound trucks at Irish ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerGreenTrucksAPImIR",
+      "description": "Percentage of intbound trucks directed to green route at Irish Ports (%)",
+      "as_is_value": 1
+    },
+    {
+      "name": "DocChkTimeAPImIR",
+      "description": "Timing of documentary and sealed identity checks on inbound trucks at Irish ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerFullIdnChkAPImIR",
+      "description": "Percentage of inbound trucks need full identity checks (orange routed) at Irish Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "IdnChkTimeAPImIR",
+      "description": "Timing of full identity checks on inbound trucks at Irish ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerPhyChkAPImIR",
+      "description": "Percentage of inbound trucks need physical checks (red routed) at Irish Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PhyChkTimeAPImIR",
+      "description": "Timing of physical checks on inbound trucks at Irish ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerSecurityChkAPIR",
+      "description": "Percentage of inbound trucks for security, license compliance and immegration checks at Irish Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "SecChkTimeAPImIR",
+      "description": "Timing of the security, license compliance and immegration checks on inbound trucks at Irish ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerGreenTrucksAgriImIR",
+      "description": "Percentage of Agri-food intbound trucks directed to green route at Irish Ports (%)",
+      "as_is_value": 1
+    },
+    {
+      "name": "DocChkTimeAgriImIR",
+      "description": "Timing of documentary and sealed identity checks on Agri-food inbound trucks at Irish ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerFullIdnChkAgriImIR",
+      "description": "Percentage of Agri-food inbound trucks need full identity checks (orange routed) at Irish Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "IdnChkTimeAgriImIR",
+      "description": "Timing of full identity checks on Agri-food inbound trucks at Irish ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerPhyChkAgriImIR",
+      "description": "Percentage of Agri-food inbound trucks need physical checks (red routed) at Irish Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PhyChkTimeAgriImIR",
+      "description": "Timing of physical checks on Agri-food inbound trucks at Irish ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerSecurityChkAgriIR",
+      "description": "Percentage of Agri-food inbound trucks for security, license compliance and immegration checks at Irish Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "SecChkTimeAgriImIR",
+      "description": "Timing of the security, license compliance and immegration checks on Agri-food inbound trucks at Irish ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerGreenTrucksCatImIR",
+      "description": "Percentage of Produict category (e.g. Meat) intbound trucks directed to green route at Irish Ports (%)",
+      "as_is_value": 1
+    },
+    {
+      "name": "DocChkTimeCatImIR",
+      "description": "Timing of documentary and sealed identity checks on Produict category (e.g. Meat) inbound trucks at Irish ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerFullIdnChkCatImIR",
+      "description": "Percentage of Produict category (e.g. Meat) inbound trucks need full identity checks (orange routed) at Irish Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "IdnChkTimeCatImIR",
+      "description": "Timing of full identity checks on Produict category (e.g. Meat) inbound trucks at Irish ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerPhyChkCatImIR",
+      "description": "Percentage of Produict category (e.g. Meat) inbound trucks need physical checks (red routed) at Irish Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PhyChkTimeCatImIR",
+      "description": "Timing of physical checks on Produict category (e.g. Meat) inbound trucks at Irish ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerSecurityChkCatIR",
+      "description": "Percentage of Produict category (e.g. Meat)  inbound trucks for security, license compliance and immegration checks at Irish Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "SecChkTimeCatImIR",
+      "description": "Timing of the security, license compliance and immegration checks on Produict category (e.g. Meat) inbound trucks at Irish ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerGreenTrucksAPExUK-W",
+      "description": "Percentage of outbound trucks directed to green route at west UK Ports (%)",
+      "as_is_value": 1
+    },
+    {
+      "name": "DocChkTimeAPExUK-W",
+      "description": "Timing of documentary and sealed identity checks on outbound trucks at west UK Ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerFullIdnChkAPExUK-W",
+      "description": "Percentage of outbound trucks need full identity checks (orange routed) at west UK Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "IdnChkTimeAPExUK-W",
+      "description": "Timing of full identity checks on outbound trucks at at west UK Ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerGreenTrucksAgriExUK-W",
+      "description": "Percentage of outbound Agri-food trucks directed to green route at west UK Ports (%)",
+      "as_is_value": 1
+    },
+    {
+      "name": "DocChkTimeAgriExUK-W",
+      "description": "Timing of documentary and sealed identity checks on Agri-food outbound trucks at west UK Ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerFullIdnChkAgriExUK-W",
+      "description": "Percentage of Agri-food outbound trucks need full identity checks (orange routed) at west UK Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "IdnChkTimeAgriExUK-W",
+      "description": "Timing of full identity checks on Agri-food outbound trucks at at west UK Ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerGreenTrucksCatExUK-W",
+      "description": "Percentage of product categpry (e.g. Meat) outbound trucks directed to green route at west UK Ports (%)",
+      "as_is_value": 1
+    },
+    {
+      "name": "DocChkTimeCatExUK-W",
+      "description": "Timing of documentary and sealed identity checks on product categpry (e.g. Meat) outbound trucks at west UK Ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerFullIdnChkCatExUK-W",
+      "description": "Percentage of product categpry (e.g. Meat) outbound trucks need full identity checks (orange routed) at west UK Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "IdnChkTimeCatExUK-W",
+      "description": "Timing of full identity checks on product categpry (e.g. Meat) outbound trucks at west UK Ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerGreenTrucksAPImUK-W",
+      "description": "Percentage of intbound trucks directed to green route at west UK Ports (%)",
+      "as_is_value": 1
+    },
+    {
+      "name": "DocChkTimeAPImUK-W",
+      "description": "Timing of documentary and sealed identity checks on inbound trucks at west UK Ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerFullIdnChkAPImUK-W",
+      "description": "Percentage of inbound trucks need full identity checks (orange routed) at west UK Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "IdnChkTimeAPImUK-W",
+      "description": "Timing of full identity checks on inbound trucks at west UK Ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerPhyChkAPImUK-W",
+      "description": "Percentage of inbound trucks need physical checks (red routed) at west UK Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PhyChkTimeAPImUK-W",
+      "description": "Timing of physical checks on inbound trucks at west UK Ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerSecurityChkAPUK-W",
+      "description": "Percentage of inbound trucks for security, license compliance and immegration checks at west UK Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "SecChkTimeAPUK-W",
+      "description": "Timing of the security, license compliance and immegration checks on inbound trucks at west UK Ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerGreenTrucksAgriImUK-W",
+      "description": "Percentage of Agri-food intbound trucks directed to green route at west UK Ports (%)",
+      "as_is_value": 1
+    },
+    {
+      "name": "DocChkTimeAgriImUK-W",
+      "description": "Timing of documentary and sealed identity checks on Agri-food inbound trucks at west UK Ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerFullIdnChkAgriImUK-W",
+      "description": "Percentage of Agri-food inbound trucks need full identity checks (orange routed) at west UK Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "IdnChkTimeAgriImUK-W",
+      "description": "Timing of full identity checks on Agri-food inbound trucks at west UK Ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerPhyChkAgriImUK-W",
+      "description": "Percentage of Agri-food inbound trucks need physical checks (red routed) at west UK Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PhyChkTimeAgriImUK-W",
+      "description": "Timing of physical checks on Agri-food inbound trucks at west UK Ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerSecurityChkAgriUK-W",
+      "description": "Percentage of Agri-food inbound trucks for security, license compliance and immegration checks at west UK Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "SecChkTimeAgriImUK-W",
+      "description": "Timing of the security, license compliance and immegration checks on Agri-food inbound trucks at west UK Ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerGreenTrucksCatImUK-W",
+      "description": "Percentage of Produict category (e.g. Meat) intbound trucks directed to green route at west UK Ports (%)",
+      "as_is_value": 1
+    },
+    {
+      "name": "DocChkTimeCatImUK-W",
+      "description": "Timing of documentary and sealed identity checks on Produict category (e.g. Meat) inbound trucks at west UK Ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerFullIdnChkCatImUK-W",
+      "description": "Percentage of Produict category (e.g. Meat) inbound trucks need full identity checks (orange routed) at west UK Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "IdnChkTimeCatImUK-W",
+      "description": "Timing of full identity checks on Produict category (e.g. Meat) inbound trucks at west UK Ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerPhyChkCatImUK-W",
+      "description": "Percentage of Produict category (e.g. Meat) inbound trucks need physical checks (red routed) at west UK Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PhyChkTimeCatImUK-W",
+      "description": "Timing of physical checks on Produict category (e.g. Meat) inbound trucks at west UK Ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerSecurityChkCatUK-W",
+      "description": "Percentage of Produict category (e.g. Meat)  inbound trucks for security, license compliance and immegration checks at west UK Ports (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "SecChkTimeCatImUK-W",
+      "description": "Timing of the security, license compliance and immegration checks on Produict category (e.g. Meat) inbound trucks at west UK Ports (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerGreenTrucksExUK-E",
+      "description": "Percentage of outbound trucks directed to green route at East UK Port (Dover) (%)",
+      "as_is_value": 1
+    },
+    {
+      "name": "DocCheckTimeExUK-E",
+      "description": "Timing of documentary and sealed identity checks on outbound trucks at East UK Port (Dover)(minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerFullIdnChkExUK-E",
+      "description": "Percentage of outbound trucks need full identity checks (orange routed) at East UK Port (Dover)(%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "IdnCheckTimeExUK-E",
+      "description": "Timing of full identity checks on outbound trucks at at East UK Port (Dover)(minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerGreenTrucksImUK-E",
+      "description": "Percentage of intbound trucks directed to green route at East UK Port (Dover) (%)",
+      "as_is_value": 1
+    },
+    {
+      "name": "DocCheckTimeImUK-E",
+      "description": "Timing of documentary and sealed identity checks on inbound trucks at East UK Port (Dover)(minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerFullIdnChkImUK-E",
+      "description": "Percentage of inbound trucks need full identity checks (orange routed) at East UK Port (Dover) (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "IdnCheckTimeImUK-E",
+      "description": "Timing of full identity checks on inbound trucks at East UK Port (Dover) (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerPhyChkImUK-E",
+      "description": "Percentage of inbound trucks need physical checks (red routed) at East UK Port (Dover) (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PhyCheckTimeImUK-E",
+      "description": "Timing of physical checks on inbound trucks at East UK Port (Dover) (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerSecurityChkUK-E",
+      "description": "Percentage of inbound trucks for security, license compliance and immegration checksat East UK Port (Dover) (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "SecCheckTimeUK-E",
+      "description": "Timing of the security, license compliance and immegration checks on inbound trucks at East UK Port (Dover) (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerGreenTrucksExEU",
+      "description": "Percentage of outbound trucks directed to green route at West-EU Ports (Calais) (%)",
+      "as_is_value": 1
+    },
+    {
+      "name": "DocCheckTimeExEU",
+      "description": "Timing of documentary and sealed identity checks on outbound trucks at West-EU Ports (Calais) (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerFullIdnChkExEU",
+      "description": "Percentage of outbound trucks need full identity checks (orange routed) at West-EU Ports (Calais) (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "IdnCheckTimeExEU",
+      "description": "Timing of full identity checks on outbound trucks at West-EU Ports (Calais) (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerGreenTrucksImEU",
+      "description": "Percentage of intbound trucks directed to green route at at West-EU Ports (Calais) (%)",
+      "as_is_value": 1
+    },
+    {
+      "name": "DocCheckTimeImEU",
+      "description": "Timing of documentary and sealed identity checks on inbound trucks at West-EU Ports (Calais) (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerFullIdnChkImEU",
+      "description": "Percentage of inbound trucks need full identity checks (orange routed) at West-EU Ports (Calais) (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "IdnCheckTimeImEU",
+      "description": "Timing of full identity checks on inbound trucks at West-EU Ports (Calais) (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerPhyChkImEU",
+      "description": "Percentage of inbound trucks need physical checks (red routed) at West-EU Ports (Calais) (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PhyCheckTimeImEU",
+      "description": "Timing of physical checks on inbound trucks at West-EU Ports (Calais) (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerSecurityChkEU",
+      "description": "Percentage of inbound trucks for security, license compliance and immegration checksat at West-EU Ports (Calais) (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "SecCheckTimeEU",
+      "description": "Timing of the security, license compliance and immegration checks on inbound trucks at West-EU Ports (Calais) (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "TransitCheckTimeLB",
+      "description": "Transit check time for all trucks flow between IRE and EU-26 through the UK Landbridge (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerFullIdnChkLB",
+      "description": "Percentag of trucks selected for full identity checks at the UK ports ( if  borders checks are applied on the trucks using Landbridge)  (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "IdnCheckTimeLB",
+      "description": "Timing of full identity checks for the the trucks flow between IRE and EU-26 through Landbridge at the UK ports  (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerPhyChkLB",
+      "description": "Percentag of the trucks selected for physical checks at the UK ports ( if  borders checks are applied on the trucks using Landbridge)   (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PhyCheckTimeLB",
+      "description": "Timing of physical checks for the the trucks flow between IRE and EU-26 through Landbridge at the UK ports  (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "PerSecurityChkLB",
+      "description": "Percentag of the trucks selected for security checks at the UK ports (if  borders checks are applied on the trucks using Landbridge)  (%)",
+      "as_is_value": 0
+    },
+    {
+      "name": "SecCheckTimeLB",
+      "description": "Timing of security, license compliance and immegration checks for the the trucks flow between IRE and EU-26 through Landbridge at the UK ports  (minutes)",
+      "as_is_value": 0
+    },
+    {
+      "name": "NumCustomOfficerD",
+      "description": "Number of custom officers at Dublin port",
+      "as_is_value": 0
+    },
+    {
+      "name": "NumSPSUnitOfficerD",
+      "description": "Number of SPS officer at Dublin port",
+      "as_is_value": 0
+    },
+    {
+      "name": "NumSecurityOfficerD",
+      "description": "Number of security and document copmpliance officers at Dublin port",
+      "as_is_value": 0
+    },
+    {
+      "name": "NumTractorD",
+      "description": "Number of tractor used to twoe an accompanied trucks at Dublin port",
+      "as_is_value": 20
+    },
+    {
+      "name": "NumCustomOfficerR",
+      "description": "Number of custom officers at Rosslare port",
+      "as_is_value": 0
+    },
+    {
+      "name": "NumSPSUnitOfficerR",
+      "description": "Number of SPS officer at Rosslare port",
+      "as_is_value": 0
+    },
+    {
+      "name": "NumTractorR",
+      "description": "Number of security and document copmpliance officers at Rosslare port",
+      "as_is_value": 0
+    },
+    {
+      "name": "NumSecurityOfficerR",
+      "description": "Number of tractor used to twoe an accompanied trucks at Rosslare port",
+      "as_is_value": 20
+    },
+    {
+      "name": "PerUKTrucksMoveD",
+      "description": "Percentage of outbound trucks from Dublin port to the UK market",
+      "as_is_value": 0.85
+    },
+    {
+      "name": "PerLBTrucksMoveD",
+      "description": "Percentage of outbound trucks from Dublin port to the EU-26 market",
+      "as_is_value": 0.85
+    },
+    {
+      "name": "DToHeyVesselCap",
+      "description": "Average ferry capacity between Dublin and Heysham ports (trailer)",
+      "as_is_value": 122
+    },
+    {
+      "name": "DToLivVesselCap",
+      "description": "Average ferry capacity between Dublin and Liverpool (trailer)",
+      "as_is_value": 123
+    },
+    {
+      "name": "DToHolyVesselCap",
+      "description": "Average ferry capacity between Dublin and Holyhead (Trailer)",
+      "as_is_value": 209
+    },
+    {
+      "name": "RToFishVesselCap",
+      "description": "Average ferry capacity between Rosslare and Fishguard (Trailer)",
+      "as_is_value": 75
+    },
+    {
+      "name": "RToPemVesselCap",
+      "description": "Average ferry capacity between Rosslare and Pembroke (Trailer",
+      "as_is_value": 122
+    },
+    {
+      "name": "DToCheVesselCap",
+      "description": "Average ferry capacity between Dublin and Chebourge ports (trailer)",
+      "as_is_value": 170
+    },
+    {
+      "name": "DToRottVesselCap",
+      "description": "Average ferry capacity between Dublin and Rotterdam (trailer)",
+      "as_is_value": 300
+    },
+    {
+      "name": "DToZeeVesselCap",
+      "description": "Average ferry capacity between Dublin and Zeebrugge (trailer)",
+      "as_is_value": 300
+    },
+    {
+      "name": "RToCheVesselCap",
+      "description": "Average ferry capacity between Rosslare and Chebourge (trailer)",
+      "as_is_value": 150
+    },
+    {
+      "name": "RToBilVesselCap",
+      "description": "Average ferry capacity between Rosslare and Bilbao (trailer)",
+      "as_is_value": 80
+    },
+    {
+      "name": "PerProductMoveHey",
+      "description": "Percentage of outbound trucks from Heysham to Dublin ports",
+      "as_is_value": 0.05
+    },
+    {
+      "name": "PerProductMoveLiv",
+      "description": "Percentage of outbound trucks from Liverpool to Dublin ports",
+      "as_is_value": 0.05
+    },
+    {
+      "name": "PerProductMoveHoly",
+      "description": "Percentage of outbound trucks from Holyhead to Dublin ports",
+      "as_is_value": 0.8
+    },
+    {
+      "name": "PerProductMoveFish",
+      "description": "Percentage of outbound trucks from Fishguard to Rosslare ports",
+      "as_is_value": 0.05
+    },
+    {
+      "name": "PerProductMovePem",
+      "description": "Percentage of outbound trucks from Pembroke to Rosslare ports",
+      "as_is_value": 0.05
+    },
+    {
+      "name": "AvgShelflife (Meat)",
+      "description": "Average Shelf-life time for the studied product category (e.g. Meat)",
+      "as_is_value": null
+    },
+    {
+      "name": "UnAccTrucks(%)",
+      "description": "Percentage of the unaccompanied trucks in Dublin and Rosslare ports",
+      "as_is_value": 0.5
+    },
+    {
+      "name": "DocCheckCost",
+      "description": "Offical documentary check cost at Irish ports",
+      "as_is_value": 50
+    },
+    {
+      "name": "IdnCheckCost",
+      "description": "Offical full identity check cost at Irish ports",
+      "as_is_value": 100
+    },
+    {
+      "name": "PhyCheckCost",
+      "description": "Offical physical check cost at Irish ports",
+      "as_is_value": 500
+    },
+    {
+      "name": "SecurityCheckCost",
+      "description": "Offical security check cost at Irish ports",
+      "as_is_value": 500
+    }
+  ]
+}

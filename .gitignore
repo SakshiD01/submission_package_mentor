@@ -1,1 +1,56 @@
+# Python
 .venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Cursor / IDE / local tooling
+.cursor/
+.idea/
+.vscode/
+*.swp
+.claude/
+
+# Env
+.env
+.env.local
+
+# macOS / Office lock files
+.DS_Store
+**/.DS_Store
+**/~$*
+
+# Local caches / temp tooling
+.pydeps/
+.tmp_pypdf/
+
+# CatBoost training telemetry (written to CWD during training)
+catboost_info/
+**/catboost_info/
+
+# Empty AnyLogic export scratch dirs
+Output [0-9]*/
+
+# brexit_ml is superseded Phase 1 - keep source, ignore data + regenerable artifacts
+brexit_ml/data/raw/*.xlsx
+brexit_ml/data/processed/*.parquet
+brexit_ml/models/
+
+# Stale handoff snapshots (retained in git history + on GitHub, archived off-repo 2026-09-05)
+*.zip
+submission_package/
+submission_package*/
+Submission_Package*/
+
+# Operator console runtime state (pending-review queue)
+experimenting_ml/data/operator/
+
+# local backup of an orphan git init (not part of the project)
+.git_local_init_backup/

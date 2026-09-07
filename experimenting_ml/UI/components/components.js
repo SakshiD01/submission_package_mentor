@@ -179,8 +179,11 @@ export function DeltaBadge(valueA, valueB, lowerIsBetter = false) {
 
 // ── KPI Card ──────────────────────────────────────────────────
 // One card in the results dashboard.
-export function KpiCard({ icon, label, value, unit, sub, theme = "teal", delay = 0, tooltip = null }) {
+// `uncertainty` (optional): { intervalText, coverageText, lowConfidence } —
+// the per-prediction conformal interval + reliability chip (technical report §13.3).
+export function KpiCard({ icon, label, value, unit, sub, theme = "teal", delay = 0, tooltip = null, uncertainty = null }) {
   const card = el("div", { class: `kpi-card kpi-${theme}`, style: { animationDelay: `${delay}s` } });
+  if (uncertainty && uncertainty.lowConfidence) card.classList.add("kpi-card--low-confidence");
 
   const iconEl = el("div", { class: "kpi-icon" }, icon);
   const body   = el("div", {});
@@ -192,6 +195,20 @@ export function KpiCard({ icon, label, value, unit, sub, theme = "teal", delay =
   valRow.append(valEl);
   if (unitEl) valRow.append(unitEl);
   body.append(lbl, valRow);
+
+  if (uncertainty && uncertainty.intervalText) {
+    const band = el("div", { class: "kpi-interval" },
+      el("span", { class: "kpi-interval-range" }, uncertainty.intervalText),
+    );
+    if (uncertainty.coverageText) {
+      band.append(el("span", { class: "kpi-interval-cov" }, uncertainty.coverageText));
+    }
+    if (uncertainty.lowConfidence) {
+      band.append(el("span", { class: "kpi-conf-chip kpi-conf-chip--low", title: "Interval is wide relative to the prediction — verify against AnyLogic" }, "verify"));
+    }
+    body.append(band);
+  }
+
   if (sub) body.append(el("div", { class: "kpi-sub" }, sub));
 
   card.append(iconEl, body);
