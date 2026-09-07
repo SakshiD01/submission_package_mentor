@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Supply Chain Simulator — RoRo Logistics Ireland</title>
+
+  <!--
+    ═══════════════════════════════════════════════════════════
+    EXTERNAL LIBRARIES (loaded from CDN — no installation needed)
+    ═══════════════════════════════════════════════════════════
+    Leaflet = the interactive map
+  -->
+  <link  rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+  <!--
+    YOUR OWN STYLESHEET
+    All colours, spacing, fonts → edit styles/styles.css
+  -->
+  <link rel="stylesheet" href="styles/styles.css" />
+</head>
+
+<body>
+<!--
+  ═══════════════════════════════════════════════════════════
+  APP SHELL
+  This is just the skeleton. JavaScript fills in the content.
+  ═══════════════════════════════════════════════════════════
+-->
+<div id="app">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="app-header">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="logo">SC</div>
+      <div>
+        <div class="app-title">Supply Chain Simulator</div>
+        <div class="app-subtitle">RoRo Truck Logistics — Ireland ↔ GB ↔ EU</div>
+      </div>
+    </div>
+
+    <!-- Tab switcher: Results ↔ Indicators -->
+    <div class="tab-bar">
+      <button class="tab-btn active" data-view="results">📊 Results</button>
+      <button class="tab-btn"        data-view="indicators">📈 Indicators</button>
+    </div>
+  </header>
+
+  <!-- MAIN BODY: left form + right content -->
+  <div class="app-body">
+
+    <!-- LEFT PANEL: Shipment input form -->
+    <aside class="left-panel">
+      <div class="panel-header">
+        <h2>Product Specification</h2>
+        <p>Configure your RoRo shipment</p>
+      </div>
+      <!-- Form fields are injected here by app.js -->
+      <div class="form-body" id="form-body"></div>
+      <!-- Run / Reset buttons -->
+      <div class="form-footer" id="form-footer"></div>
+    </aside>
+
+    <!-- RIGHT PANEL: Results or Indicators -->
+    <main class="right-panel">
+
+      <!--
+        Indicator filter bar — hidden when showing Results,
+        visible when showing Indicators tab.
+        app.js toggles visibility automatically.
+      -->
+      <div class="ind-filters" id="ind-filter-bar" style="display:none"></div>
+
+      <!-- Leaflet map host (shown after Run); id required for buildMap("results-map") -->
+      <div id="results-map-section" class="map-wrapper" style="display:none">
+        <div id="results-map" style="height: 280px; width: 100%"></div>
+      </div>
+
+      <!-- Content area — filled by renderResults() or renderIndicators() -->
+      <div class="panel-scroll" id="right-content"></div>
+
+    </main>
+  </div>
+
+  <!-- Chat shell; buildChatbot() injects header/messages/input -->
+  <div id="chat-panel" class="chat-panel" style="display: none"></div>
+
+</div><!-- end #app -->
+
+<!--
+  ═══════════════════════════════════════════════════════════
+  YOUR JAVASCRIPT (loaded as ES Modules)
+  The browser loads these in order:
+    data.js       → all raw numbers and constants
+    components.js → reusable UI building blocks
+    app.js     → wires everything together
+  ═══════════════════════════════════════════════════════════
+-->
+<script type="module" src="app.js"></script>
+
+</body>
+</html>

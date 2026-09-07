@@ -1,0 +1,13 @@
+[project]
+name = "brexit-ml"
+version = "0.1.0"
+description = "Brexit simulation ML surrogate engine (Phase 1)"
+requires-python = ">=3.10"
+readme = "README.md"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+markers = [
+    "integration: tests that need the real AnyLogic xlsx or long-running setup",
+]

@@ -54,3 +54,6 @@ experimenting_ml/data/operator/
 
 # local backup of an orphan git init (not part of the project)
 .git_local_init_backup/
+
+# nested Brexit_ML git dir, kept aside after converting it to plain tracked files
+.brexit_ml_nested_git_backup/
