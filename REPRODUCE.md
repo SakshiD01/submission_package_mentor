@@ -29,6 +29,11 @@ cross-package dependency is intentional and resolved by path in code.
 * **Python 3.8.10** — one interpreter for all three packages. (Earlier docs said
   `nolhc_ml` needs 3.10+; this is not the case — it installs and tests clean on
   3.8.10.)
+* `experimenting_ml/.python-version` (3.11.9) and `experimenting_ml/runtime.txt`
+  (`python-3.11.9`) are **deployment settings for the hosted Render service**, not
+  the local reproduction target. Render builds from the looser `requirements.txt`
+  ranges; local reproduction uses 3.8.10 and the lock files. The two targets are
+  intentional and independent — do not "reconcile" them.
 * macOS/Linux. On Apple Silicon, `brew install libomp` if XGBoost import fails.
 * No database, no cloud account required for anything in §2–§5.
 * Pinned dependency sets are committed as `requirements.lock.txt` in each

@@ -2,7 +2,7 @@
 name = "brexit-ml"
 version = "0.1.0"
 description = "Brexit simulation ML surrogate engine (Phase 1)"
-requires-python = ">=3.10"
+requires-python = ">=3.8"   # verified on 3.8.10 across all three packages; see REPRODUCE.md section 1
 readme = "README.md"
 
 [tool.pytest.ini_options]
